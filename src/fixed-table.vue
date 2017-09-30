@@ -117,7 +117,9 @@ export default {
             } else {
                 result = this.scrollTarget;
             }
-            result && result.classList.add('scroll-container')
+            if(result) {
+                result.style.position = 'relative'
+            }
             this.getTargetOffsetParent(this.$refs.tbody, result);
             return result
         }
@@ -174,8 +176,10 @@ export default {
             while(dom && dom !== parent) {
                 top += dom.offsetTop;
                 left += dom.offsetLeft;
+                console.log(dom, top, parent)
                 dom = dom.parentElement
             }
+            console.log(top)
             this.targetOffset.left = left;
             this.targetOffset.top = top;
         },
@@ -241,7 +245,6 @@ export default {
             // setTimeout(() => {
             this.$nextTick(() => {
                 // const isThLen = this.$refs.thead.offsetWidth > this.$refs.tbody.offsetWidth;
-                // console.log(isThLen)
                 const tds = this.$refs.tbody.querySelector('tr').querySelectorAll('td');
                 const ths = this.$refs.thead.querySelectorAll('th')
                 if(this.$slots.fixleft) {
@@ -253,7 +256,6 @@ export default {
                     //     this.tdLeftWidthArray.push(Math.max(tdWidth, thWidth))
                     // })
                     this.tleftWidth = this.$refs.leftClone.offsetWidth + 'px'
-                    console.log(this.$refs.leftClone.offsetWidth)
                     // this.tleftWidth = this.tdLeftWidthArray.reduce((sum, each) => sum + each, 0) + 1 + 'px'
                 }
                 // this.tdWidthArray = [];

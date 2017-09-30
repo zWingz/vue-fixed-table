@@ -1,7 +1,6 @@
 <template>
     <section class='container'>
-
-        <div style='margin-top: 10px'>
+        <div class='section'>
             <FixedTable use-opacity>
                 <template slot='fixCorner'>
                     <tr>
@@ -10,23 +9,48 @@
                     </tr>
                 </template>
                 <tbody slot='fixleft'>
-                    <tr v-for='i in 30' :key='i'>
+                    <tr v-for='i in 10' :key='i'>
                         <td>fixed</td>
                         <td>fixed</td>
                     </tr>
                 </tbody>
                 <template slot='thead'>
                     <tr>
-                        <th v-for='j in 5' :key='j'>head{{j}}</th>
+                        <th v-for='j in 20' :key='j'>head{{j}}</th>
                     </tr>
                 </template>
                 <tbody slot='tbody'>
-                    <tr v-for='i in 30' :key='i'>
-                        <td v-for='j in 5' :key='j'>j</td>
+                    <tr v-for='i in 10' :key='i'>
+                        <td v-for='j in 20' :key='j'>j</td>
                     </tr>
                 </tbody>
             </FixedTable>
-
+            <div id='scroll' class='overauto section' style='max-height: 400px'>
+                <FixedTable scrollTarget='#scroll'>
+                    <template slot='fixCorner'>
+                        <tr>
+                            <th>Corner</th>
+                            <th>Corner</th>
+                        </tr>
+                    </template>
+                    <tbody slot='fixleft'>
+                        <tr v-for='i in 30' :key='i'>
+                            <td>fixed</td>
+                            <td>fixed</td>
+                        </tr>
+                    </tbody>
+                    <template slot='thead'>
+                        <tr>
+                            <th v-for='j in 20' :key='j'>head{{j}}</th>
+                        </tr>
+                    </template>
+                    <tbody slot='tbody'>
+                        <tr v-for='i in 30' :key='i'>
+                            <td v-for='j in 20' :key='j'>j</td>
+                        </tr>
+                    </tbody>
+                </FixedTable>
+            </div>
         </div>
     </section>
 </template>
@@ -39,3 +63,12 @@ export default {
     }
 }
 </script>
+<style>
+    .section {
+        margin: 40px 0;
+    }
+    .overauto {
+        overflow: auto;
+    }
+</style>
+
