@@ -1,0 +1,15 @@
+_Store
+node_modules/
+npm-debug.log
+selenium-debug.log
+test/unit/coverage
+test/e2e/reports
+config/
+test-build/
+.vscode
+.eslintrc.json
+npm-debug.*
+stats.json
+dist/
+stat.json
+yarn-error.log
