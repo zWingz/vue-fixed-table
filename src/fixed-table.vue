@@ -1,14 +1,12 @@
 <template>
     <div class='fixed-table-container' :style='containerStyle'>
-         <table v-if='$slots.fixleft' ref='leftClone' class='fixed-table table-clone left fixed-table-opacity' :style='leftStyle'> 
+        <table v-if='$slots.fixleft' ref='leftClone' class='fixed-table table-clone left fixed-table-opacity' :style='leftStyle'> 
             <thead v-if='$slots.fixCorner' class='fixed-table corner fixed-table-opacity' :style='cornerStyle'>
                 <slot name='fixCorner'></slot>
             </thead> 
              <slot name='fixleft'></slot>
-         </table> 
-         <!-- <table ref='thead' class='fixed-table top'> -->
-         </table> 
-        <table ref='tbody' class='fixed-table'>
+        </table> 
+        <table ref='tbody' class='fixed-table' style='margin-left: -1px;'>
              <thead  ref='thead' :style='theadStyle' class='fixed-table-opacity'>
                 <slot name='thead'></slot>
              </thead>
@@ -88,21 +86,17 @@ export default {
             return {
                 transform: `translate3d(${this.fixed.left ? this.offsetLeft - this.clientRect.left : 0}px, 0px, 0px)`,
                 width: this.tleftWidth,
-                // top: this.container.paddingTop + 'px',
                 opacity: this.leftChange ? '0' : '1'
             }
         },
         cornerStyle() {
             return {
                 transform: `translate3d(0px, ${this.fixed.top ? -this.clientRect.top : 0}px, 0px)`,
-                // width: this.tleftWidth,
                 opacity: (this.topChange || this.leftChange) ? '0' : '1'
-                // position: 'sticky'
             }
         },
         containerStyle() {
             return {
-                // paddingTop: this.container.paddingTop + 'px',
                 paddingLeft: this.tleftWidth,
                 zIndex: this.scrolling ? '9999' : ''
             }
@@ -148,7 +142,6 @@ export default {
     beforeDestroy() {
         this.scroller.removeEventListener('scroll', this.scrollHandle)
         window.removeEventListener('resize', this.resizeHandel)
-        // this.observer.disconnect();
     },
     methods: {
         addHoverHandle() {
@@ -176,10 +169,8 @@ export default {
             while(dom && dom !== parent) {
                 top += dom.offsetTop;
                 left += dom.offsetLeft;
-                console.log(dom, top, parent)
                 dom = dom.parentElement
             }
-            console.log(top)
             this.targetOffset.left = left;
             this.targetOffset.top = top;
         },
@@ -240,62 +231,13 @@ export default {
             }, 500)
         },
         update() {
-            // this.tbodyWidth = 'initial';
-            // this.tleftWidth = 'initial';
-            // setTimeout(() => {
             this.$nextTick(() => {
-                // const isThLen = this.$refs.thead.offsetWidth > this.$refs.tbody.offsetWidth;
-                const tds = this.$refs.tbody.querySelector('tr').querySelectorAll('td');
-                const ths = this.$refs.thead.querySelectorAll('th')
                 if(this.$slots.fixleft) {
-                    // const leftTds = this.$refs.leftClone.querySelector('tr').querySelectorAll('td')
-                    // const corner = this.$refs.leftCorner.querySelectorAll('th')
-                    // leftTds.forEach((each, index) => {
-                    //     const thWidth = corner[index].offsetWidth;
-                    //     const tdWidth = each.offsetWidth;
-                    //     this.tdLeftWidthArray.push(Math.max(tdWidth, thWidth))
-                    // })
                     this.tleftWidth = this.$refs.leftClone.offsetWidth + 'px'
-                    // this.tleftWidth = this.tdLeftWidthArray.reduce((sum, each) => sum + each, 0) + 1 + 'px'
                 }
-                // this.tdWidthArray = [];
-                // this.tdLeftWidthArray = [];
-                // const width = Math.max(this.$el.offsetWidth - parseInt(this.tleftWidth, 0), this.$refs.thead.offsetWidth, this.$refs.tbody.offsetWidth)
-                // console.log(this.$el.offsetWidth - parseInt(this.tleftWidth, 0), this.$refs.thead.offsetWidth, this.$refs.tbody.offsetWidth, width)
-                // this.tbodyWidth = width + 'px';
-                // console.log(this.$refs.thead.offsetWidth)
-                // const thsWidth = Array.from(ths).reduce((sum, each) => (sum + each.offsetWidth), 0)
-                // const tdsWidth = Array.from(tds).reduce((sum, each) => (sum + each.offsetWidth), 0)
-                // const isThLen = thsWidth > tdsWidth;
-                // tds.forEach((each, index) => {
-                //     const thWidth = ths[index].offsetWidth;
-                //     const tdWidth = each.offsetWidth;
-                //     this.tdWidthArray.push(isThLen ? thWidth : tdWidth)
-                // })
-                // this.syncWidth();
             })
         },
         syncWidth() {
-            // this.$refs.thead.querySelectorAll('th').forEach((each, index) => {
-            //     each.style.width = this.tdWidthArray[index] + 'px'
-            // })
-            // this.$refs.tbody.querySelectorAll('tr').forEach(tr => {
-            //     tr.querySelectorAll('td').forEach((td, index) => {
-            //         td.style.width = this.tdWidthArray[index] + 'px'
-            //     })
-            // })
-            // 同步left和corner
-            // if(this.$slots.fixleft) {
-            //     this.$refs.leftCorner.querySelectorAll('th').forEach((each, index) => {
-            //         each.style.width = this.tdLeftWidthArray[index] + 'px'
-            //     })
-            //     this.$refs.leftClone.querySelectorAll('tr').forEach(tr => {
-            //         tr.querySelectorAll('td').forEach((td, index) => {
-            //             td.style.width = this.tdLeftWidthArray[index] + 'px'
-            //         })
-            //     })
-            // }
-            // this.container.paddingTop = this.$refs.thead.querySelector('tr').offsetHeight
         }
     },
     watch: {
@@ -314,7 +256,7 @@ export default {
                 this.topChange = true;
                 this.topChangeTimer = setTimeout(() => {
                     this.topChange = false;
-                }, 100)
+                }, 400)
             }
         },
         'clientRect.left': function(val) {
@@ -327,7 +269,7 @@ export default {
                 this.leftChange = true;
                 this.leftChangeTimer = setTimeout(() => {
                     this.leftChange = false;
-                }, 200)
+                }, 400)
             }
         }
     }
@@ -340,8 +282,12 @@ export default {
         z-index: 1;
         transform: translate3d(0, 0, 0);
     }
+    .fixed-table {
+        border-spacing: 0px;
+        border-collapse: separate;
+    }
     .fixed-table-opacity {
-        // transition: opacity .2s ease;
+        transition: opacity .4s ease;
     }
     .table-clone {
         position: absolute;

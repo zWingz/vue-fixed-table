@@ -12,12 +12,7 @@ body {
 .fixed-table {
     width: 100%;
     color: #333;
-    /* border-collapse: collapse; */
-    border: 1px solid #e3e3e9;
-    border-left: none;
-    border-top: none;
     background: #fff;
-    border-spacing: 0px;
 }
 
 .fixed-table thead {
@@ -31,10 +26,19 @@ body {
     border-right: none;
     font-size: 12px;
     padding: 0 10px;
+    &:last-child {
+        border-right: 1px solid #e3e3e9;
+    }
 }
 
-.fixed-btn {
-    color: inherit;
+.fixed-table {
+    tbody {
+        tr:last-child {
+            td {
+                border-bottom: 1px solid #e3e3e9;
+            }
+        }
+    }
 }
 
 .fixed-table tbody tr:hover,
