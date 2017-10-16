@@ -3,8 +3,10 @@
         <table v-if='$slots.fixleft' ref='leftClone' class='fixed-table table-clone left fixed-table-opacity' :style='leftStyle'> 
             <thead v-if='$slots.fixCorner' class='fixed-table corner fixed-table-opacity' :style='cornerStyle'>
                 <slot name='fixCorner'></slot>
-            </thead> 
-             <slot name='fixleft'></slot>
+            </thead>
+            <tbody>
+                <slot name='fixleft'></slot>
+            </tbody>
         </table> 
         <table ref='tbody' class='fixed-table' style='margin-left: -1px;'>
              <thead  ref='thead' :style='theadStyle' class='fixed-table-opacity'>
@@ -55,8 +57,8 @@ export default {
             container: {
                 paddingTop: 0
             },
-            tbodyWidth: 'initial', // 表格宽度
-            tleftWidth: 'initial', // 左侧表格宽度,
+            // tbodyWidth: 'initial', // 表格宽度
+            tleftWidth: 0, // 左侧表格宽度,
             topChange: false,
             leftChange: false,
             topChangeTimer: undefined,
@@ -70,22 +72,16 @@ export default {
         theadStyle() {
             return {
                 transform: `translate3d(0px, ${this.fixed.top ? -this.clientRect.top : 0}px, 0px)`,
-                width: this.tbodyWidth,
+                // width: this.tbodyWidth,
                 // left: this.tleftWidth,
                 opacity: this.topChange ? '0' : '1'
                 // position: 'sticky'
             }
         },
-        tbodyStyle() {
-            return {
-                width: this.tbodyWidth,
-                marginTop: '-1px'
-            }
-        },
         leftStyle() {
             return {
                 transform: `translate3d(${this.fixed.left ? this.offsetLeft - this.clientRect.left : 0}px, 0px, 0px)`,
-                width: this.tleftWidth,
+                width: this.tleftWidth + 'px',
                 opacity: this.leftChange ? '0' : '1'
             }
         },
@@ -97,8 +93,8 @@ export default {
         },
         containerStyle() {
             return {
-                paddingLeft: this.tleftWidth,
-                zIndex: this.scrolling ? '9999' : ''
+                paddingLeft: this.tleftWidth + (this.isFixLeft ? -1 : 0) + 'px',
+                zIndex: this.scrolling ? '2' : ''
             }
         },
         scroller() {
@@ -116,6 +112,9 @@ export default {
             }
             this.getTargetOffsetParent(this.$refs.tbody, result);
             return result
+        },
+        isFixLeft() {
+            return !!this.$slots.fixleft
         }
     },
     mounted() {
@@ -126,7 +125,7 @@ export default {
             childList: true,
             subtree: true
         })
-        if(this.$slots.fixleft) {
+        if(this.isFixLeft) {
             this.hoverObserver = new MutationObserver(this.addHoverHandle)
             this.hoverObserver.observe(this.$refs.tbody, {
                 childList: true,
@@ -145,22 +144,24 @@ export default {
     },
     methods: {
         addHoverHandle() {
-            const tbodyTr = this.$refs.tbody.querySelectorAll('tbody tr')
-            const leftTr = this.$refs.leftClone.querySelectorAll('tbody tr')
-            leftTr.forEach((each, index) => {
-                const mouseenter = () => {
-                        tbodyTr[index].classList.add('hover')
-                        each.classList.add('hover')
+            if(this.isFixLeft) {
+                const tbodyTr = this.$refs.tbody.querySelectorAll('tbody tr')
+                const leftTr = this.$refs.leftClone.querySelectorAll('tbody tr')
+                leftTr.forEach((each, index) => {
+                    const mouseenter = () => {
+                            tbodyTr[index].classList.add('hover')
+                            each.classList.add('hover')
+                        }
+                    const mouseleave = () => {
+                        tbodyTr[index].classList.remove('hover')
+                        each.classList.remove('hover')
                     }
-                const mouseleave = () => {
-                    tbodyTr[index].classList.remove('hover')
-                    each.classList.remove('hover')
-                }
-                each.addEventListener('mouseenter', mouseenter)
-                each.addEventListener('mouseleave', mouseleave)
-                tbodyTr[index].addEventListener('mouseenter', mouseenter)
-                tbodyTr[index].addEventListener('mouseleave', mouseleave)
-            })
+                    each.addEventListener('mouseenter', mouseenter)
+                    each.addEventListener('mouseleave', mouseleave)
+                    tbodyTr[index].addEventListener('mouseenter', mouseenter)
+                    tbodyTr[index].addEventListener('mouseleave', mouseleave)
+                })
+            }
         },
         getTargetOffsetParent(dom, parent) {
             let top = dom.offsetTop;
@@ -232,12 +233,21 @@ export default {
         },
         update() {
             this.$nextTick(() => {
-                if(this.$slots.fixleft) {
+                if(this.isFixLeft) {
                     this.tleftWidth = this.$refs.leftClone.offsetWidth + 'px'
                 }
             })
         },
-        syncWidth() {
+        opacityFixed(key) {
+            const timer = this[key + 'Timer']
+            if(timer) {
+                clearTimeout(timer)
+                this[key + 'Timer'] = undefined
+            }
+            this[key] = true;
+            this[key + 'Timer'] = setTimeout(() => {
+                this[key] = false;
+            }, 400)
         }
     },
     watch: {
@@ -249,27 +259,13 @@ export default {
         'clientRect.top': function(val, old) {
             this.fixed.top = val < 0;
             if(val < 0 && (isMoz || this.useOpacity)) {
-                if(this.topChangeTimer) {
-                    clearTimeout(this.topChangeTimer)
-                    this.topChangeTimer = undefined
-                }
-                this.topChange = true;
-                this.topChangeTimer = setTimeout(() => {
-                    this.topChange = false;
-                }, 400)
+                this.opacityFixed('topChange');
             }
         },
         'clientRect.left': function(val) {
             this.fixed.left = val < this.offsetLeft;
             if(val < 0 && (isMoz || this.useOpacity)) {
-                if(this.leftChangeTimer) {
-                    clearTimeout(this.leftChangeTimer)
-                    this.leftChangeTimer = undefined
-                }
-                this.leftChange = true;
-                this.leftChangeTimer = setTimeout(() => {
-                    this.leftChange = false;
-                }, 400)
+                this.opacityFixed('topChange');
             }
         }
     }
