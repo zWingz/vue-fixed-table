@@ -13,9 +13,7 @@
 
 ## 主要依赖
 
-`vue@2.4.2` `webpack@3.3.0` `vue-router@2.7.0` `axios@0.16.2"`
-`vuex@2.3.1
-
+`vue@2.4.4`
 ----
 
 ## Build Setup
