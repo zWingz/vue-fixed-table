@@ -1,6 +1,6 @@
 <template>
     <div class='rel'>
-        <div class='fixed-table-container' :style='containerStyle' :class='{"scroll-container": selfScroll}'>
+        <div class='fixed-table-container' ref='content' :style='containerStyle' :class='{"overauto": selfScroll}'>
             <table v-if='$slots.fixleft' ref='leftClone' class='fixed-table table-clone left fixed-table-opacity' :style='leftStyle'> 
                 <thead v-if='$slots.fixCorner' class='fixed-table corner fixed-table-opacity' :style='cornerStyle'>
                     <slot name='fixCorner'></slot>
@@ -18,18 +18,18 @@
                 </tbody>
             </table>
         </div>
-        <scroll-x-bar v-if='selfScroll'></scroll-x-bar>
+        <scrollxbar v-if='selfScroll'></scrollxbar>
     </div>
 </template>
 
 <script>
-import scrollXbar from './scroll-x-bar';
+import scrollxbar from './scroll-x-bar';
 import { getStyle, getScrollTop, getScrollLeft } from './utils';
 const userAgent = navigator.userAgent;
 const isMoz = /Firefox/.test(userAgent)
 export default {
     components: {
-        scrollXbar
+        scrollxbar
     },
     props: {
         offsetLeft: {
@@ -308,10 +308,14 @@ export default {
         z-index: 1;
         transform: translate3d(0, 0, 0);
     }
+    .overauto {
+        overflow: auto;
+    }
     .fixed-table {
         border-spacing: 0px;
         border-collapse: separate;
         transform-style: preserve-3d;
+        overflow: hidden;
             th, td {
                 border-bottom-color: transparent;
                 border-right-color: transparent;
