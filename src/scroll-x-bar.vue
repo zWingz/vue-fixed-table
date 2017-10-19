@@ -5,7 +5,7 @@
 </template>
 
 <script>
-import { addResizeEventListener } from 'js/utils';
+import { addResizeEventListener } from './utils';
 export default {
     data() {
         return {

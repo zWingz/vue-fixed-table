@@ -22,23 +22,8 @@ body {
 .fixed-table td,
 .fixed-table th {
     border: 1px solid #e3e3e9;
-    border-bottom: none;
-    border-right: none;
     font-size: 12px;
     padding: 0 10px;
-    &:last-child {
-        border-right: 1px solid #e3e3e9;
-    }
-}
-
-.fixed-table {
-    tbody {
-        tr:last-child {
-            td {
-                border-bottom: 1px solid #e3e3e9;
-            }
-        }
-    }
 }
 
 .fixed-table tbody tr:hover,

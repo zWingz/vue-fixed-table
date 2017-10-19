@@ -34,7 +34,7 @@ module.exports = merge(baseWebpackConfig, {
         // new FriendlyErrorsPlugin(),
 
         // 配置多页
-        ...(function () {
+        ...(function() {
             return Object.keys(config.entry).map(each => {
                 return new HtmlWebpackPlugin({
                     template: './index.html',
@@ -57,7 +57,7 @@ module.exports = merge(baseWebpackConfig, {
                 // { from: /\//, to: '/app.html' },
                 // 也可以根据entry自动生成
                 // 规则是将 entryKey下的路由重定向到 entryKey.html
-                ...(function () {
+                ...(function() {
                     return Object.keys(config.entry).map(each => {
                         return {
                             from: new RegExp(each + '\/'),
@@ -72,7 +72,7 @@ module.exports = merge(baseWebpackConfig, {
             '/mock': {
                 target: '',
                 secure: false,
-                pathRewrite: { "^/mock": "" }
+                pathRewrite: { "^/mock": "https://www.easy-mock.com/mock/59e8918c21a50c465d91d78f/tableMock" }
             }
         }
     }

@@ -13,21 +13,23 @@
                 <thead  ref='thead' :style='theadStyle' class='fixed-table-opacity'>
                     <slot name='thead'></slot>
                 </thead>
-                <slot name='tbody'></slot>
+                <tbody>
+                    <slot name='tbody'></slot>
+                </tbody>
             </table>
         </div>
-        <VirtualScrollBar v-if='selfScroll'></VirtualScrollBar>
+        <scroll-x-bar v-if='selfScroll'></scroll-x-bar>
     </div>
 </template>
 
 <script>
-import VirtualScrollBar from 'components/VirtualScrollBar';
-import { getStyle, getScrollTop, getScrollLeft } from 'js/utils';
+import scrollXbar from './scroll-x-bar';
+import { getStyle, getScrollTop, getScrollLeft } from './utils';
 const userAgent = navigator.userAgent;
 const isMoz = /Firefox/.test(userAgent)
 export default {
     components: {
-        VirtualScrollBar
+        scrollXbar
     },
     props: {
         offsetLeft: {
@@ -210,7 +212,7 @@ export default {
                     this.scroller.scrollTop = -top;
                 })
             } else {
-                window.scrollTo(left + parseInt(this.tleftWidth, 0), top + this.container.paddingTop)
+                window.scrollTo(left + this.tleftWidth, top + this.container.paddingTop)
             }
         },
         scrollHandle() {
@@ -236,7 +238,7 @@ export default {
                 // console.log(left, this.tleftWidth)
                 this.clientRect = {
                     top: top - this.container.paddingTop,
-                    left: left - parseInt(this.tleftWidth, 0),
+                    left: left - this.tleftWidth,
                     bottom,
                     right
                 }
@@ -262,7 +264,7 @@ export default {
         update() {
             this.$nextTick(() => {
                 if(this.isFixLeft) {
-                    this.tleftWidth = this.$refs.leftClone.offsetWidth + 'px'
+                    this.tleftWidth = this.$refs.leftClone.offsetWidth
                 }
             })
         },
