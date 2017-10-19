@@ -1,3 +1,16 @@
+/**
+ * 获取滚动高度
+ */
+export function getScrollTop() {
+    return document.documentElement.scrollTop || window.pageYOffset || document.body.scrollTop;
+}
+/**
+ * 获取滚动横向距离
+ */
+export function getScrollLeft() {
+    return document.documentElement.scrollLeft || window.pageXOffset || document.body.scrollLeft;
+}
+
 export function calcWidth(element, dir) {
     let dom;
     if (typeof element === 'string') {
@@ -30,3 +43,18 @@ export function addResizeEventListener(ele, resizeHandle) {
     obj.data = 'about:blank';
     return obj;
 }
+
+export const getStyle = function(element, styleName) {
+    if (isServer) return;
+    if (!element || !styleName) return null;
+    styleName = camelCase(styleName);
+    if (styleName === 'float') {
+        styleName = 'cssFloat';
+    }
+    try {
+        const computed = document.defaultView.getComputedStyle(element, '');
+        return element.style[styleName] || computed ? computed[styleName] : null;
+    } catch (e) {
+        return element.style[styleName];
+    }
+};

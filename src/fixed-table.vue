@@ -1,26 +1,34 @@
 <template>
-    <div class='fixed-table-container' :style='containerStyle'>
-        <table v-if='$slots.fixleft' ref='leftClone' class='fixed-table table-clone left fixed-table-opacity' :style='leftStyle'> 
-            <thead v-if='$slots.fixCorner' class='fixed-table corner fixed-table-opacity' :style='cornerStyle'>
-                <slot name='fixCorner'></slot>
-            </thead>
-            <tbody>
-                <slot name='fixleft'></slot>
-            </tbody>
-        </table> 
-        <table ref='tbody' class='fixed-table' style='margin-left: -1px;'>
-             <thead  ref='thead' :style='theadStyle' class='fixed-table-opacity'>
-                <slot name='thead'></slot>
-             </thead>
-            <slot name='tbody'></slot>
-        </table>
+    <div class='rel'>
+        <div class='fixed-table-container' :style='containerStyle' :class='{"scroll-container": selfScroll}'>
+            <table v-if='$slots.fixleft' ref='leftClone' class='fixed-table table-clone left fixed-table-opacity' :style='leftStyle'> 
+                <thead v-if='$slots.fixCorner' class='fixed-table corner fixed-table-opacity' :style='cornerStyle'>
+                    <slot name='fixCorner'></slot>
+                </thead>
+                <tbody>
+                    <slot name='fixleft'></slot>
+                </tbody>
+            </table> 
+            <table ref='tbody' class='fixed-table' style='margin-left: -1px;'>
+                <thead  ref='thead' :style='theadStyle' class='fixed-table-opacity'>
+                    <slot name='thead'></slot>
+                </thead>
+                <slot name='tbody'></slot>
+            </table>
+        </div>
+        <VirtualScrollBar v-if='selfScroll'></VirtualScrollBar>
     </div>
 </template>
 
 <script>
+import VirtualScrollBar from 'components/VirtualScrollBar';
+import { getStyle, getScrollTop, getScrollLeft } from 'js/utils';
 const userAgent = navigator.userAgent;
 const isMoz = /Firefox/.test(userAgent)
 export default {
+    components: {
+        VirtualScrollBar
+    },
     props: {
         offsetLeft: {
             type: [String, Number],
@@ -31,7 +39,11 @@ export default {
             default: 0
         },
         scrollTarget: {},
-        useOpacity: Boolean
+        useOpacity: Boolean,
+        selfScroll: {
+            type: Boolean,
+            default: false
+        }
     },
     data() {
         return {
@@ -52,8 +64,6 @@ export default {
             },
             resizeObserver: undefined, // resize的observer
             hoverObserver: undefined, // 用于绑定hover事件
-            tdWidthArray: [], // 存放表格中td和th的宽度
-            tdLeftWidthArray: [], // 存放左侧固定蓝表格的td和td宽度
             container: {
                 paddingTop: 0
             },
@@ -71,11 +81,8 @@ export default {
     computed: {
         theadStyle() {
             return {
-                transform: `translate3d(0px, ${this.fixed.top ? -this.clientRect.top : 0}px, 0px)`,
-                // width: this.tbodyWidth,
-                // left: this.tleftWidth,
+                transform: `translate3d(0px, ${this.fixed.top ? -this.clientRect.top : 0}px, 1px)`,
                 opacity: this.topChange ? '0' : '1'
-                // position: 'sticky'
             }
         },
         leftStyle() {
@@ -87,7 +94,7 @@ export default {
         },
         cornerStyle() {
             return {
-                transform: `translate3d(0px, ${this.fixed.top ? -this.clientRect.top : 0}px, 0px)`,
+                transform: `translate3d(0px, ${this.fixed.top ? -this.clientRect.top : 0}px, 1px)`,
                 opacity: (this.topChange || this.leftChange) ? '0' : '1'
             }
         },
@@ -108,10 +115,16 @@ export default {
                 result = this.scrollTarget;
             }
             if(result) {
-                result.style.position = 'relative'
+                const pos = getStyle(result, 'position')
+                if(pos !== 'absolute' && pos !== 'fixed') {
+                    result.style.position = 'relative';
+                }
             }
             this.getTargetOffsetParent(this.$refs.tbody, result);
             return result
+        },
+        xScroller() {
+            return this.$refs.content
         },
         isFixLeft() {
             return !!this.$slots.fixleft
@@ -119,12 +132,15 @@ export default {
     },
     mounted() {
         this.scroller.addEventListener('scroll', this.scrollHandle);
-        window.addEventListener('resize', this.resizeHandel)
-        this.resizeObserver = new MutationObserver(this.update)
-        this.resizeObserver.observe(this.$refs.tbody, {
-            childList: true,
-            subtree: true
-        })
+        if(this.selfScroll) {
+            this.xScroller.addEventListener('scroll', this.scrollHandle)
+        }
+        // window.addEventListener('resize', this.resizeHandel)
+        // this.resizeObserver = new MutationObserver(this.update)
+        // this.resizeObserver.observe(this.$refs.tbody, {
+        //     childList: true,
+        //     subtree: true
+        // })
         if(this.isFixLeft) {
             this.hoverObserver = new MutationObserver(this.addHoverHandle)
             this.hoverObserver.observe(this.$refs.tbody, {
@@ -140,7 +156,10 @@ export default {
     },
     beforeDestroy() {
         this.scroller.removeEventListener('scroll', this.scrollHandle)
-        window.removeEventListener('resize', this.resizeHandel)
+        if(this.selfScroll) {
+            this.xScroller.removeEventListener('scroll', this.scrollHandle)
+        }
+        // window.removeEventListener('resize', this.resizeHandel)
     },
     methods: {
         addHoverHandle() {
@@ -179,8 +198,8 @@ export default {
             const left = this.targetOffset.left
             const top = this.targetOffset.top
             return {
-                top: top - (this.scrollTarget ? this.scroller.scrollTop : window.getScrollTop()),
-                left: left - (this.scrollTarget ? this.scroller.scrollLeft : window.getScrollLeft())
+                top: top - (this.scrollTarget ? this.scroller.scrollTop : getScrollTop()),
+                left: left - (this.scrollTarget ? this.scroller.scrollLeft : getScrollLeft())
             }
         },
         scrollPositionInit() {
@@ -203,7 +222,16 @@ export default {
                 this.scrolling = false;
                 this.scrollTimer = undefined;
             }, 250)
-            if(!this.scrollTarget) {
+            if(this.selfScroll) {
+                const { top } = this.$refs.tbody.getBoundingClientRect()
+                const left = -this.$refs.content.scrollLeft
+                this.clientRect = {
+                    top: top - this.container.paddingTop,
+                    left,
+                    right: 0,
+                    bottom: 0
+                }
+            } else if(!this.scrollTarget) {
                 const { top, left, bottom, right } = this.$refs.tbody.getBoundingClientRect()
                 // console.log(left, this.tleftWidth)
                 this.clientRect = {
@@ -281,6 +309,21 @@ export default {
     .fixed-table {
         border-spacing: 0px;
         border-collapse: separate;
+        transform-style: preserve-3d;
+            th, td {
+                border-bottom-color: transparent;
+                border-right-color: transparent;
+            }
+            tbody tr:last-child {
+                td {
+                    border-bottom-color: #dadada;
+                }
+            }
+            thead.fixed {
+                td, th {
+                    border-bottom-color: #dadada;
+                }
+            }
     }
     .fixed-table-opacity {
         transition: opacity .4s ease;
@@ -293,6 +336,11 @@ export default {
         left: 0px;
         &.corner {
             z-index: 2;
+        }
+        td, th {
+            &:last-child {
+                border-right: 1px solid #dadada;
+            }
         }
     }
 </style>
