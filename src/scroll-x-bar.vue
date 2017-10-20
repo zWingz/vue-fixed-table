@@ -90,7 +90,7 @@ export default {
             }
             this.scrollTimer = setTimeout(() => {
                 const { bottom } = this.target.getBoundingClientRect()
-                const height = document.body.offsetHeight;
+                // const height = document.body.offsetHeight;
                 let result = bottom - document.documentElement.clientHeight;
                 if(result < 0 || result > this.target.offsetHeight) {
                     result = 0
