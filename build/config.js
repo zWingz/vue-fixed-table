@@ -21,7 +21,7 @@ module.exports = {
         // 编译输出的二级目录
         assetsSubDirectory: 'assets',
         // 编译发布上线路径的根目录，可配置为资源服务器域名或 CDN 域名
-        assetsPublicPath: '/',
+        assetsPublicPath: '',
         // 是否开启 cssSourceMap
         productionSourceMap: false,
         // Gzip off by default as many popular static hosts such as
