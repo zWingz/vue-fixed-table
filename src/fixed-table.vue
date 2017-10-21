@@ -9,7 +9,7 @@
                     <slot name='fixleft'></slot>
                 </tbody>
             </table> 
-            <table ref='tbody' class='fixed-table' style='margin-left: -1px;'>
+            <table ref='tbody' class='fixed-table table-body' :style='bodyStyle'>
                 <thead  ref='thead' :style='theadStyle' class='fixed-table-opacity'>
                     <slot name='thead'></slot>
                 </thead>
@@ -66,10 +66,10 @@ export default {
             },
             resizeObserver: undefined, // resize的observer
             hoverObserver: undefined, // 用于绑定hover事件
-            container: {
-                paddingTop: 0
-            },
-            // tbodyWidth: 'initial', // 表格宽度
+            // container: {
+            //     paddingTop: 0
+            // },
+            tbodyWidth: 0, // 表格宽度
             tleftWidth: 0, // 左侧表格宽度,
             topChange: false,
             leftChange: false,
@@ -88,10 +88,15 @@ export default {
                 opacity: this.topChange ? '0' : '1'
             }
         },
+        bodyStyle() {
+            return {
+                // marginLeft: '-1px',
+                width: this.tbodyWidth + 'px'
+            }
+        },
         leftStyle() {
             return {
                 transform: `translate3d(${this.fixed.left ? this.offsetLeft - this.clientRect.left : 0}px, 0px, 0px)`,
-                // width: this.tleftWidth + 'px',
                 width: 'initial',
                 opacity: this.leftChange ? '0' : '1'
             }
@@ -104,7 +109,6 @@ export default {
         },
         containerStyle() {
             return {
-                // paddingLeft: this.tleftWidth + (this.isFixLeft ? -1 : 0) + 'px',
                 zIndex: this.scrolling ? '1' : ''
             }
         },
@@ -145,8 +149,8 @@ export default {
         //     childList: true,
         //     subtree: true
         // })
+        this.iframe = addResizeEventListener(this.$refs.content, this.resizeHandel)
         if(this.isFixLeft) {
-            this.iframe = addResizeEventListener(this.$refs.leftClone, this.resizeHandel)
             this.hoverObserver = new MutationObserver(this.addHoverHandle)
             this.hoverObserver.observe(this.$refs.tbody, {
                 childList: true,
@@ -161,13 +165,10 @@ export default {
     },
     beforeDestroy() {
         this.scroller.removeEventListener('scroll', this.scrollHandle)
-        
         if(this.selfScroll) {
             this.xScroller.removeEventListener('scroll', this.scrollHandle)
         }
-        if(this.isFixLeft) {
-            this.xScroller.removeEventListener('scroll', this.resizeHandel)
-        }
+        this.iframe.removeEventListener('resize', this.resizeHandel)
     },
     methods: {
         addHoverHandle() {
@@ -218,7 +219,7 @@ export default {
                     this.scroller.scrollTop = -top;
                 })
             } else {
-                window.scrollTo(left + this.tleftWidth, top + this.container.paddingTop)
+                window.scrollTo(left + this.tleftWidth, top)
             }
         },
         scrollHandle() {
@@ -234,7 +235,7 @@ export default {
                 const { top } = this.$refs.tbody.getBoundingClientRect()
                 const left = -this.$refs.content.scrollLeft
                 this.clientRect = {
-                    top: top - this.container.paddingTop,
+                    top: top,
                     left,
                     right: 0,
                     bottom: 0
@@ -242,7 +243,7 @@ export default {
             } else if(!this.scrollTarget) {
                 const { top, left, bottom, right } = this.$refs.tbody.getBoundingClientRect()
                 this.clientRect = {
-                    top: top - this.container.paddingTop,
+                    top: top,
                     left: left - this.tleftWidth,
                     bottom,
                     right
@@ -264,14 +265,18 @@ export default {
             this.updateTimer = setTimeout(() => {
                 this.update();
                 this.updateTimer = undefined;
-            }, 250)
+            }, 300)
         },
         update() {
-            this.$nextTick(() => {
-                if(this.isFixLeft) {
-                    this.tleftWidth = this.$refs.leftClone.offsetWidth
-                }
-            })
+            if(this._isDestroyed) {
+                return;
+            }
+            if(this.isFixLeft && this.$refs.leftClone) {
+                this.tleftWidth = this.$refs.leftClone.offsetWidth
+            }
+            if(this.$refs.content) {
+                this.tbodyWidth = this.$refs.content.offsetWidth - this.tleftWidth;
+            }
         },
         opacityFixed(key) {
             const timer = this[key + 'Timer']
@@ -337,12 +342,21 @@ export default {
     .fixed-table-opacity {
         transition: opacity .4s ease;
     }
+    .table-body {
+        width: initial;
+        flex-grow: 1;
+        flex-shrink: 0;
+        position: relative;
+        left: -1px;
+    }
     .table-clone {
         // position: absolute;
         z-index: 1;
         // z-index: 2;
-        top: 0px;
-        left: 0px;
+        // top: 0px;
+        // left: 0px;
+        flex-grow: 0;
+        flex-shrink: 0;
         &.corner {
             z-index: 2;
         }

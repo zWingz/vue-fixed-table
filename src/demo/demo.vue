@@ -2,22 +2,22 @@
     <FixedTable v-bind='$attrs'>
         <template slot='fixCorner'>
             <tr>
-                <th v-for='th in corner'>{{th}}</th>
+                <AlignCell tag='th' v-for='th in corner' :key='th'>{{th}}</AlignCell>
             </tr>
         </template>
         <template slot='fixleft'>
-            <tr v-for='tr in tbody'>
-                <td v-for='td in tr.td.slice(0,2)'>{{td}}</td>
+            <tr v-for='(tr, index) in tbody' :key='index'>
+                <AlignCell v-for='td in tr.td.slice(0,2)' :key='td'>{{td}}</AlignCell>
             </tr>
         </template>
         <template slot='thead'>
             <tr>
-                <th v-for='th in thead'>{{th}}</th>
+                <AlignCell tag='th' v-for='th in thead' :key='th'>{{th}}</AlignCell>
             </tr>
         </template>
         <template slot='tbody'>
-            <tr v-for='tr in tbody'>
-                <td v-for='td in tr.td.slice(2)'>{{td}}</td>
+            <tr v-for='(tr, index) in tbody' :key='index'>
+                <AlignCell v-for='td in tr.td.slice(2)' :key='td'>{{td}}</AlignCell>
             </tr>
         </template>
     </FixedTable>
@@ -25,9 +25,11 @@
 
 <script>
 import FixedTable from '../fixed-table';
+import AlignCell from '../align-cell';
 export default {
     components: {
-        FixedTable
+        FixedTable,
+        AlignCell
     },
     props: {
         data: Object
