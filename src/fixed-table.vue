@@ -1,6 +1,6 @@
 <template>
     <div class='rel'>
-        <div class='fixed-table-container' ref='content' :style='containerStyle' :class='{"overauto": selfScroll}'>
+        <div class='fixed-table-container' ref='content' :style='containerStyle' :class='{"scroll-container": selfScroll}'>
             <table v-if='$slots.fixleft' ref='leftClone' class='fixed-table table-clone left fixed-table-opacity' :style='leftStyle'> 
                 <thead v-if='$slots.fixCorner' class='fixed-table corner fixed-table-opacity' :style='cornerStyle'>
                     <slot name='fixCorner'></slot>
@@ -24,7 +24,7 @@
 
 <script>
 import scrollxbar from './scroll-x-bar';
-import { getStyle, getScrollTop, getScrollLeft } from './utils';
+import { getStyle, getScrollTop, getScrollLeft, addResizeEventListener } from './utils';
 const userAgent = navigator.userAgent;
 const isMoz = /Firefox/.test(userAgent)
 export default {
@@ -77,7 +77,8 @@ export default {
             leftChangeTimer: undefined,
             updateTimer: undefined,
             scrollTimer: undefined,
-            scrolling: false
+            scrolling: false,
+            iframe: {}
         }
     },
     computed: {
@@ -90,7 +91,8 @@ export default {
         leftStyle() {
             return {
                 transform: `translate3d(${this.fixed.left ? this.offsetLeft - this.clientRect.left : 0}px, 0px, 0px)`,
-                width: this.tleftWidth + 'px',
+                // width: this.tleftWidth + 'px',
+                width: 'initial',
                 opacity: this.leftChange ? '0' : '1'
             }
         },
@@ -102,8 +104,8 @@ export default {
         },
         containerStyle() {
             return {
-                paddingLeft: this.tleftWidth + (this.isFixLeft ? -1 : 0) + 'px',
-                zIndex: this.scrolling ? '2' : ''
+                // paddingLeft: this.tleftWidth + (this.isFixLeft ? -1 : 0) + 'px',
+                zIndex: this.scrolling ? '1' : ''
             }
         },
         scroller() {
@@ -122,7 +124,7 @@ export default {
                     result.style.position = 'relative';
                 }
             }
-            this.getTargetOffsetParent(this.$refs.tbody, result);
+            this.getTargetOffsetParent(this.$refs.content, result);
             return result
         },
         xScroller() {
@@ -133,9 +135,9 @@ export default {
         }
     },
     mounted() {
-        this.scroller.addEventListener('scroll', this.scrollHandle);
+        this.scroller.addEventListener('scroll', this.scrollHandle, false);
         if(this.selfScroll) {
-            this.xScroller.addEventListener('scroll', this.scrollHandle)
+            this.xScroller.addEventListener('scroll', this.scrollHandle, false)
         }
         // window.addEventListener('resize', this.resizeHandel)
         // this.resizeObserver = new MutationObserver(this.update)
@@ -143,6 +145,8 @@ export default {
         //     childList: true,
         //     subtree: true
         // })
+        this.iframe = addResizeEventListener(this.$refs.leftClone, this.resizeHandel)
+
         if(this.isFixLeft) {
             this.hoverObserver = new MutationObserver(this.addHoverHandle)
             this.hoverObserver.observe(this.$refs.tbody, {
@@ -158,9 +162,11 @@ export default {
     },
     beforeDestroy() {
         this.scroller.removeEventListener('scroll', this.scrollHandle)
+        
         if(this.selfScroll) {
             this.xScroller.removeEventListener('scroll', this.scrollHandle)
         }
+        this.iframe.removeEventListener('resize', this.resizeHandel);
         // window.removeEventListener('resize', this.resizeHandel)
     },
     methods: {
@@ -235,7 +241,6 @@ export default {
                 }
             } else if(!this.scrollTarget) {
                 const { top, left, bottom, right } = this.$refs.tbody.getBoundingClientRect()
-                // console.log(left, this.tleftWidth)
                 this.clientRect = {
                     top: top - this.container.paddingTop,
                     left: left - this.tleftWidth,
@@ -259,7 +264,7 @@ export default {
             this.updateTimer = setTimeout(() => {
                 this.update();
                 this.updateTimer = undefined;
-            }, 500)
+            }, 250)
         },
         update() {
             this.$nextTick(() => {
@@ -307,6 +312,7 @@ export default {
         position: relative;
         z-index: 1;
         transform: translate3d(0, 0, 0);
+        display: flex;
     }
     .overauto {
         overflow: auto;
@@ -335,7 +341,7 @@ export default {
         transition: opacity .4s ease;
     }
     .table-clone {
-        position: absolute;
+        // position: absolute;
         z-index: 1;
         // z-index: 2;
         top: 0px;
@@ -348,5 +354,8 @@ export default {
                 border-right: 1px solid #dadada;
             }
         }
+    }
+    .rel {
+        position: relative;
     }
 </style>

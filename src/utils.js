@@ -13,7 +13,7 @@ export function getScrollLeft() {
 
 export function calcWidth(element, dir) {
     let dom;
-    if(typeof element === 'string') {
+    if (typeof element === 'string') {
         dom = document.querySelectorAll(element);
     } else {
         dom = element
@@ -22,7 +22,7 @@ export function calcWidth(element, dir) {
     let maxWidth = 0;
     dom.forEach(each => {
         const offsetWidth = each.offsetWidth;
-        if(offsetWidth > maxWidth) {
+        if (offsetWidth > maxWidth) {
             maxWidth = offsetWidth;
         }
     })
@@ -41,12 +41,13 @@ export function addResizeEventListener(ele, resizeHandle) {
     obj.type = 'text/html';
     ele.appendChild(obj);
     obj.data = 'about:blank';
+    console.log('resize');
     return obj;
 }
 
 export const getStyle = function(element, styleName) {
-    if(!element || !styleName) return null;
-    if(styleName === 'float') {
+    if (!element || !styleName) return null;
+    if (styleName === 'float') {
         styleName = 'cssFloat';
     }
     try {

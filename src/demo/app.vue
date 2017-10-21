@@ -1,31 +1,55 @@
 <template>
-    <section class='container'>
-            <P>
-                情景一:
-            </P>
-            <p>
-                全局滚动.固定顶部和左侧栏
-            </p>
-            <demo :data='data'>
-            </demo>
-            <P>
-                情景二:
-            </P>
-            <p>
-                局部滚动,固定顶部和左侧
-            </p>
-             <div id='scroll' class='overauto section' style='max-height: 400px'>
-                <demo :data='data' scrollTarget='#scroll'>
-                </demo>
-            </div> 
-            <P>
-                情景三:
-            </P>
-            <p>
-                y轴方向全局滚动,x轴使用虚拟滚动条
-            </p>
-            <demo :data='data' self-scroll>
-            </demo>
+    <section class='main-container' :class='{full: index === 2, "width-full": index === 3}'>
+        <div class='sidebar'>
+            <div class='menu-container'>
+                <div class="root-menu" @click='index = 1' :class='{active: index === 1}'>
+                    <div class='menu-title flex align-center'>
+                        表格一
+                    </div>
+                </div>            
+                <div class="root-menu" @click='index = 2' :class='{active: index === 2}'>
+                    <div class='menu-title flex align-center'>
+                        表格二
+                    </div>
+                </div>            
+                <div class="root-menu" @click='index = 3' :class='{active: index === 3}'>
+                    <div class='menu-title flex align-center'>
+                        表格三
+                    </div>
+                </div>            
+            </div>
+        </div>
+        <div class='main-wraper'>
+            <div class='view'  v-if='index === 1'>
+                <div class='view-title'>
+                    表格一:全局滚动.滚动时固定顶部和左侧栏
+                </div>
+                <div class='view-content'>
+                    <demo :data='data' :offsetLeft='200'>
+                    </demo>
+                </div>
+            </div>
+            <div class='view' v-if='index ===2'>
+                <div class='view-title'>
+                    表格二:容器内局部滚动,滚动时在容器内固定顶部和左侧
+                </div>
+                <div class='view-content'>
+                    <div id='scroll' class='scroll-container'>
+                        <demo :data='data' scrollTarget='#scroll'>
+                        </demo>
+                    </div> 
+                </div>
+            </div>
+            <div class='view'  v-if='index === 3'>
+                <div class='view-title'>
+                    表格三:高度跟随全局,固定宽度且x轴滚动. 出现虚拟x滚动条.解决滚动条太下无法拖动问题.
+                </div>
+                <div class='view-content'>
+                    <demo :data='data' self-scroll>
+                    </demo>
+                </div>
+            </div>
+        </div>
     </section>
 </template>
 
@@ -42,7 +66,8 @@ export default {
             data: {
                 thead: [],
                 tbody: []
-            }
+            },
+            index: 1
         }
     },
     mounted() {

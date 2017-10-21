@@ -74,9 +74,9 @@ export default {
     },
     destroyed() {
         this.target.removeEventListener('scroll', this.targetScrollHandle)
-        this.bar.removeEventListener('mousedown', this.barMouseDownHandle, false);
+        this.bar.removeEventListener('mousedown', this.barMouseDownHandle);
         window.removeEventListener('scroll', this.windowScrollHandle)
-        this.iframe.removeEventListener('resize', this.refreshScroll, false);
+        this.iframe.removeEventListener('resize', this.refreshScroll);
     },
     methods: {
         /**
