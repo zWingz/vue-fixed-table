@@ -145,9 +145,8 @@ export default {
         //     childList: true,
         //     subtree: true
         // })
-        this.iframe = addResizeEventListener(this.$refs.leftClone, this.resizeHandel)
-
         if(this.isFixLeft) {
+            this.iframe = addResizeEventListener(this.$refs.leftClone, this.resizeHandel)
             this.hoverObserver = new MutationObserver(this.addHoverHandle)
             this.hoverObserver.observe(this.$refs.tbody, {
                 childList: true,
@@ -166,8 +165,9 @@ export default {
         if(this.selfScroll) {
             this.xScroller.removeEventListener('scroll', this.scrollHandle)
         }
-        this.iframe.removeEventListener('resize', this.resizeHandel);
-        // window.removeEventListener('resize', this.resizeHandel)
+        if(this.isFixLeft) {
+            this.xScroller.removeEventListener('scroll', this.resizeHandel)
+        }
     },
     methods: {
         addHoverHandle() {
