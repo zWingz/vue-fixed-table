@@ -8,7 +8,6 @@ var baseWebpackConfig = require('./base.conf')
 var ExtractTextPlugin = require('extract-text-webpack-plugin')
 var HtmlWebpackPlugin = require('html-webpack-plugin')
 var isProduction = process.env.NODE_ENV === 'production';
-var CompressionWebpackPlugin = require('compression-webpack-plugin');
 // 直接将manifest写入到html中
 var OptimizeCSSPlugin = require('optimize-css-assets-webpack-plugin');
 // var BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
@@ -45,10 +44,6 @@ var webpackConfig = merge(baseWebpackConfig, {
         // // ...
         // }),
         new UglifyEsPlugin({
-            parallel: {
-                cache: true,
-                workers: 2 // for e.g
-            },
             uglifyOptions: {
                 ecma: 8,
                 compress: {
