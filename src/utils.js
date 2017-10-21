@@ -41,7 +41,6 @@ export function addResizeEventListener(ele, resizeHandle) {
     obj.type = 'text/html';
     ele.appendChild(obj);
     obj.data = 'about:blank';
-    console.log('resize');
     return obj;
 }
 

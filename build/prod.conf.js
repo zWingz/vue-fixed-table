@@ -98,16 +98,10 @@ var webpackConfig = merge(baseWebpackConfig, {
                 )
             }
         }),
-        // 多页应用下提取各个entry的公共部分
-        new webpack.optimize.CommonsChunkPlugin({
-            name: 'common',
-            chunks: Object.keys(config.entry),
-            minChunks: 2
-        }),
         // 提取manifest
         new webpack.optimize.CommonsChunkPlugin({
             name: 'manifest',
-            chunks: ['vendor', 'common'] // 只将这些打包进manifest中
+            chunks: ['vendor'] // 只将这些打包进manifest中
         }),
         // 引入dll, 如有有需要的话.请先执行dll.conf.js完成dll的打包
         // new webpack.DllReferencePlugin({
