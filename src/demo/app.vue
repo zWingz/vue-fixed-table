@@ -3,17 +3,17 @@
         <div class='sidebar'>
             <div class='menu-container'>
                 <div class="root-menu" @click='index = 1' :class='{active: index === 1}'>
-                    <div class='menu-title flex align-center'>
+                    <div class='menu-title'>
                         表格一
                     </div>
                 </div>            
                 <div class="root-menu" @click='index = 2' :class='{active: index === 2}'>
-                    <div class='menu-title flex align-center'>
+                    <div class='menu-title'>
                         表格二
                     </div>
                 </div>            
                 <div class="root-menu" @click='index = 3' :class='{active: index === 3}'>
-                    <div class='menu-title flex align-center'>
+                    <div class='menu-title'>
                         表格三
                     </div>
                 </div>            
@@ -81,9 +81,3 @@ export default {
     }
 }
 </script>
-<style>
-    .overauto {
-        overflow: auto;
-    }
-</style>
-

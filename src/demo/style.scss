@@ -1,32 +1,18 @@
 $s1: #6a82ec;
 $s2: #7c92f5;
-// 辅助中性颜色
 $b1: #2d3041;
 $b2: #363b4f;
-$b3: #4f5671;
 $b4: #a7b1c2;
-$b5: #fff;
-$b6: #eef0fc; // hover
 $b7: #e3e3e9; // border
 $b8: #e7eaec; // shadow
 $b9: #333; // global bg
-$b10: #a0a0a0; // default color
-$b11: #f3f3f4; // placeholder
-$b12: #d0d0d0; // disabled bg
-// 辅助
-$c1: #f85b62; // error
-$c2: #f39b77; // warning
-$c3: #1ab394; // success
-$c4: #1fc5a3; // success
 $globalBg: #f3f3f4;
 html,
 body {
     margin: 0;
     padding: 0;
     font-size: 14px;
-    font-family: Microsoft YaHei;
     height: 100%;
-    color: #333;
     min-width: 998px;
 }
 
@@ -61,10 +47,6 @@ body {
     }
 }
 
-.overauto {
-    overflow: auto;
-}
-
 
 /* 滚动条 end */
 
@@ -77,13 +59,6 @@ body {
     min-height: 100%;
     &.full {
         height: 100%;
-        // .view-content {
-        //     padding: 20px 10px 5px;
-        // }
-        // .view {
-        //     padding-bottom: 5px;
-        //     padding-right: 5px;
-        // }
     }
     &.width-full {
         width: 100%;
@@ -114,21 +89,10 @@ body {
     z-index: 999;
 }
 
-.menu-btn {
-    cursor: pointer;
-    text-align: center;
-    color: $b4;
-    background: $b2;
-    line-height: 30px;
-    z-index: 2;
-    flex-shrink: 0;
-}
-
 
 /* 导航栏 start */
 
 .menu-container {
-    // flex: 1 1 auto;
     height: 100vh;
     background: $b2;
     padding-top: 20px;
@@ -141,7 +105,7 @@ body {
             border-color: $s1;
             background: $b1;
             .menu-title {
-                color: $b5;
+                color: #fff;
             }
         }
     }
@@ -150,46 +114,6 @@ body {
         padding-left: 20px;
         cursor: pointer;
         font-weight: bold;
-        .icomoon {
-            font-weight: normal;
-        }
-    }
-    .menu-item {
-        display: flex;
-        align-items: center;
-        line-height: 46px;
-    }
-    .title {
-        padding-top: 10px;
-        padding-bottom: 10px;
-        color: $b3;
-        font-size: 12px;
-        line-height: 16px;
-    }
-    .router {
-        display: inline-block;
-        display: flex;
-        align-items: center;
-        width: 100%;
-        height: 50px;
-        padding-right: 10px;
-        padding-left: 20px;
-        color: $b4;
-        font-size: 14px;
-        font-weight: bold;
-        .icomoon {
-            margin-right: 11px;
-            margin-left: 1px;
-            font-size: 12px;
-            font-weight: normal;
-        }
-        &:hover,
-        &.active {
-            color: $b5;
-        }
-    }
-    .scroll-bar-container {
-        pointer-events: none;
     }
 }
 
@@ -201,7 +125,6 @@ body {
     flex-direction: column;
     margin-left: 200px;
     transition: all .3s ease;
-    // background: $globalBg;
 }
 
 .view {
@@ -224,7 +147,7 @@ body {
 .view-content {
     flex: 1 1 auto;
     padding: 20px;
-    background: $b5;
+    background: #fff;
     box-shadow: 0px -1px 1px 1px $b8;
     display: flex;
     flex-direction: column;

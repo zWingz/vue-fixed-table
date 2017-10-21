@@ -1,10 +1,14 @@
 {
     "name": "fixed-table",
     "version": "1.0.0",
-    "description": "a vue component",
+    "description": "a vue-table component",
     "main": "src/index.js",
     "author": "zWingz",
     "license": "MIT",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/zWingz/vue-fixed-table"
+    },
     "scripts": {
         "clean-build": "rm -rf demo/",
         "build": "cross-env NODE_ENV=production webpack --progress --hide-modules --colors --config=build/prod.conf.js",

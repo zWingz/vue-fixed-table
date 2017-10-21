@@ -314,9 +314,6 @@ export default {
         transform: translate3d(0, 0, 0);
         display: flex;
     }
-    .overauto {
-        overflow: auto;
-    }
     .fixed-table {
         border-spacing: 0px;
         border-collapse: separate;
