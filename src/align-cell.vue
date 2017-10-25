@@ -48,26 +48,30 @@ export default {
         this.calc();
         this.observer = new MutationObserver(this.calc)
         this.observer.observe(this.$refs.span, {
-            // childList: true,
+            childList: true,
             subtree: true,
             characterData: true
         })
+    },
+    destroyed() {
+        this.observer.disconnect();
     },
     // async activated() {
     //     this.calc();
     //     console.log('activated');
     // },
     methods: {
-        async calc() {
-            // console.log('calc');
+        calc() {
             const table = this.$el.offsetParent;
+            if(!table) {
+                return;
+            }
             const index = this.$el.cellIndex + 1;
             const element = table.querySelectorAll(`.align-cell:nth-child(${index})>span>span`)
             // TODO
             this.$nextTick(() => {
-                calcWidth(element, this.dir)
+                calcWidth(element)
             });
-            // console.log(element, tr.rowIndex, index);
         }
     },
     computed: {

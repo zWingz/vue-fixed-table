@@ -91,7 +91,9 @@ export default {
         bodyStyle() {
             return {
                 // marginLeft: '-1px',
-                width: this.tbodyWidth + 'px'
+                width: this.tbodyWidth - (this.isFixLeft ? 1 : 0) + 'px',
+                position: 'relative',
+                left: '-1px'
             }
         },
         leftStyle() {
@@ -143,12 +145,6 @@ export default {
         if(this.selfScroll) {
             this.xScroller.addEventListener('scroll', this.scrollHandle, false)
         }
-        // window.addEventListener('resize', this.resizeHandel)
-        // this.resizeObserver = new MutationObserver(this.update)
-        // this.resizeObserver.observe(this.$refs.tbody, {
-        //     childList: true,
-        //     subtree: true
-        // })
         this.iframe = addResizeEventListener(this.$refs.content, this.resizeHandel)
         if(this.isFixLeft) {
             this.hoverObserver = new MutationObserver(this.addHoverHandle)
@@ -213,7 +209,11 @@ export default {
         },
         scrollPositionInit() {
             const { left, top } = this.clientRect
-            if(this.scrollTarget) {
+            if(this.selfScroll) {
+                this.$nextTick(() => {
+                    this.$refs.content.scrollLeft = -this.clientRect.left
+                })
+            } else if(this.scrollTarget) {
                 this.$nextTick(() => {
                     this.scroller.scrollLeft = -left;
                     this.scroller.scrollTop = -top;
@@ -244,7 +244,7 @@ export default {
                 const { top, left, bottom, right } = this.$refs.tbody.getBoundingClientRect()
                 this.clientRect = {
                     top: top,
-                    left: left - this.tleftWidth,
+                    left: left - this.offsetLeft,
                     bottom,
                     right
                 }
@@ -275,7 +275,7 @@ export default {
                 this.tleftWidth = this.$refs.leftClone.offsetWidth
             }
             if(this.$refs.content) {
-                this.tbodyWidth = this.$refs.content.offsetWidth - this.tleftWidth;
+                this.tbodyWidth = this.$refs.content.clientWidth - this.tleftWidth;
             }
         },
         opacityFixed(key) {
@@ -343,9 +343,6 @@ export default {
         transition: opacity .4s ease;
     }
     .table-body {
-        width: initial;
-        flex-grow: 1;
-        flex-shrink: 0;
         position: relative;
         left: -1px;
     }

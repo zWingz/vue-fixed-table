@@ -13,7 +13,7 @@ export default {
             scrollLeft: 0, // 滚动距离
             virtualPercent: 0, // 滚动按钮宽度占比
             virtualMouseDownX: 0, // 鼠标按键x坐标
-            // virtualObserver: {},
+            virtualObserver: {},
             resizeTimer: null, // resize的timer
             scrollTimer: null, // 全局滚动的timer
             bar: {}, // 滚动按钮的dom元素
@@ -53,30 +53,39 @@ export default {
         // virtual
         this.bar = this.$refs.bar;
         this.target = this.$el.previousElementSibling;
-        // this.virtualObserver = new MutationObserver(this.refreshScroll);
-        // this.virtualObserver.observe(this.target, {
-        //     childList: true,
-        //     // attributeFilter: ['style'],
-        //     subtree: true
-        // });
-        
+        this.virtualObserver = new MutationObserver(this.refreshScroll);
+        this.virtualObserver.observe(this.target, {
+            childList: true,
+            characterData: true,
+            // attributeFilter: ['style'],
+            subtree: true
+        });
         // 监听mousedown
         this.bar.addEventListener('mousedown', this.barMouseDownHandle, false);
         // 计算滚动属性
-        this.refreshScroll();
+        // this.refreshScroll();
         // window.addEventListener('resize', this.refreshScroll, false);
         // 计算滚动条位置
         this.windowScrollHandle();
-        window.addEventListener('scroll', this.windowScrollHandle, false)
+        ['scroll', 'resize'].forEach(each => {
+            window.addEventListener(each, this.windowScrollHandle, false)
+        })
         this.target.addEventListener('scroll', this.targetScrollHandle, false);
         // 添加resize监听器
         this.iframe = addResizeEventListener(this.target, this.refreshScroll)
     },
+    activated() {
+        this.targetScrollHandle()
+        this.windowScrollHandle();
+    },
     destroyed() {
         this.target.removeEventListener('scroll', this.targetScrollHandle)
         this.bar.removeEventListener('mousedown', this.barMouseDownHandle);
-        window.removeEventListener('scroll', this.windowScrollHandle)
+        ['scroll', 'resize'].forEach(each => {
+            window.removeEventListener(each, this.windowScrollHandle)
+        })
         this.iframe.removeEventListener('resize', this.refreshScroll);
+        this.virtualObserver.disconnect();
     },
     methods: {
         /**
@@ -91,8 +100,9 @@ export default {
             this.scrollTimer = setTimeout(() => {
                 const { bottom } = this.target.getBoundingClientRect()
                 // const height = document.body.offsetHeight;
+                // let result = bottom - height;
                 let result = bottom - document.documentElement.clientHeight;
-                if(result < 0 || result > this.target.offsetHeight) {
+                if(result < 0) {
                     result = 0
                 }
                 this.bottom = result;
@@ -126,7 +136,9 @@ export default {
                 }
                 this.virtualPercent = this.target.offsetWidth / this.target.scrollWidth;
                 this.resizeTimer = null;
+                // this.scrollLeft = this.target.scrollLeft
                 this.windowScrollHandle();
+                this.targetScrollHandle();
             }, 100)
         },
         /**
@@ -194,6 +206,9 @@ export default {
 </script>
 
 <style lang='scss'>
+.no-select {
+    user-select: none;
+}
 .virtual-scroll{
     opacity: 1;
     height: 9px;
