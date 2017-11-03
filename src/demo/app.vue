@@ -31,11 +31,13 @@
                     表格三:高度跟随全局,宽度自适应且x轴滚动. 出现虚拟x滚动条.解决滚动条太下无法拖动问题.同时固定顶部/左侧/右侧
                 </div>
                 <div class='view-content' v-loading='!load'>
-                    <demo :data='data' :offsetLeft='200' v-if='index === 1'></demo>
-                    <div id='scroll' class='scroll-container' v-if='index === 2'>
-                        <demo :data='data' scrollTarget='#scroll'></demo>
-                    </div> 
-                    <demo :data='data' self-scroll v-if='index === 3'></demo>
+                    <template v-if='load'>
+                        <demo :data='data' :offsetLeft='200' v-if='index === 1'></demo>
+                        <div id='scroll' class='scroll-container' v-if='index === 2'>
+                            <demo :data='data' scrollTarget='#scroll'></demo>
+                        </div> 
+                        <demo :data='data' self-scroll v-if='index === 3'></demo>
+                    </template>
                 </div>
             </div>
         </div>
@@ -64,8 +66,10 @@ export default {
     },
     methods: {
         async getData() {
-            const data = await axios.post('https://www.easy-mock.com/mock/59e8918c21a50c465d91d78f/tableMock/list')
-            this.data = data.data.data;
+            const res = await axios.post('https://www.easy-mock.com/mock/59e8918c21a50c465d91d78f/tableMock/list')
+            console.log(res.data.data);
+            this.data.thead = res.data.data.thead
+            this.data.tbody = res.data.data.tbody
             this.load = true;
         }
     }

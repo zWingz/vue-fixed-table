@@ -247,11 +247,11 @@
                     this.$el.removeEventListener('mouseout', this.mouseLeave);
                 }
                 this.resizeObserver.disconnect();
-                if(this.iframe) {
+                if(this.selfScroll || this.scrollTarget) {
                     this.iframe.removeEventListener('resize', this.resizeHandel);
                     this.iframe.remove();
                 }
-                    window.removeEventListener('resize', this.resizeHandel)
+                window.removeEventListener('resize', this.resizeHandel)
             },
             hoverClass(e, type) {
                 const tr = e.target.closest('tr');
