@@ -19,34 +19,23 @@
                 </div>            
             </div>
         </div>
-        <div class='main-wraper' v-if='load'>
-            <div class='view'  v-if='index === 1'>
-                <div class='view-title'>
-                    表格一:全局滚动.滚动时固定顶部和左侧栏
+        <div class='main-wraper'>
+            <div class='view'>
+                <div class='view-title' v-if='index === 1'>
+                    表格一:全局滚动.滚动时固定顶部/左侧/右侧
                 </div>
-                <div class='view-content'>
-                    <demo :data='data' :offsetLeft='200'>
-                    </demo>
+                <div class='view-title' v-if='index === 2'>
+                    表格二:容器内局部滚动,滚动时在容器内固定顶部/左侧/右侧
                 </div>
-            </div>
-            <div class='view' v-if='index ===2'>
-                <div class='view-title'>
-                    表格二:容器内局部滚动,滚动时在容器内固定顶部和左侧
+                <div class='view-title' v-if='index === 3'>
+                    表格三:高度跟随全局,宽度自适应且x轴滚动. 出现虚拟x滚动条.解决滚动条太下无法拖动问题.同时固定顶部/左侧/右侧
                 </div>
-                <div class='view-content'>
-                    <div id='scroll' class='scroll-container'>
-                        <demo :data='data' scrollTarget='#scroll'>
-                        </demo>
+                <div class='view-content' v-loading='!load'>
+                    <demo :data='data' :offsetLeft='200' v-if='index === 1'></demo>
+                    <div id='scroll' class='scroll-container' v-if='index === 2'>
+                        <demo :data='data' scrollTarget='#scroll'></demo>
                     </div> 
-                </div>
-            </div>
-            <div class='view' v-if='index === 3'>
-                <div class='view-title'>
-                    表格三:高度跟随全局,固定宽度且x轴滚动. 出现虚拟x滚动条.解决滚动条太下无法拖动问题.
-                </div>
-                <div class='view-content'>
-                    <demo :data='data' self-scroll>
-                    </demo>
+                    <demo :data='data' self-scroll v-if='index === 3'></demo>
                 </div>
             </div>
         </div>
@@ -54,7 +43,6 @@
 </template>
 
 <script>
-import FixedTable from '../fixed-table';
 import demo from './demo';
 import axios from 'axios';
 export default {
@@ -67,7 +55,7 @@ export default {
                 thead: [],
                 tbody: []
             },
-            index: 2,
+            index: 1,
             load: false
         }
     },
