@@ -17,7 +17,7 @@
                     <slot name='tbody'></slot>
                 </tbody>
             </table>
-            <div v-if='$slots.rightBody' class='flex-no-shrink' :style='{width: tRightWidth + "px", height: "1px"}'></div>
+            <div v-if='$slots.rightBody && (selfScroll || scrollTarget)' class='flex-no-shrink' :style='{width: tRightWidth + "px", height: "1px"}'></div>
             <table v-if='isFixRight' ref='rightClone' class='fixed-table table-clone right' :class='addTransitionClass' :style='rightStyle'> 
                 <thead class='fixed-table corner' :style='cornerStyle' :class='[{fixed: fixed.top}, addTransitionClass]'>
                     <slot name='rightThead'></slot>
@@ -218,10 +218,14 @@
                         false
                     );
                 }
-                this.iframe = addResizeEventListener(
-                    this.$refs.content,
-                    this.resizeHandel
-                );
+                if(this.selfScroll || this.scrollTarget) {
+                    this.iframe = addResizeEventListener(
+                        this.$refs.content,
+                        this.resizeHandel
+                    );
+                } else {
+                    window.addEventListener('resize', this.resizeHandel, false)
+                }
                 this.resizeObserver.observe(this.$refs.content, {
                     childList: true,
                     subtree: true,
@@ -243,8 +247,11 @@
                     this.$el.removeEventListener('mouseout', this.mouseLeave);
                 }
                 this.resizeObserver.disconnect();
-                this.iframe.removeEventListener('resize', this.resizeHandel);
-                this.iframe.remove();
+                if(this.iframe) {
+                    this.iframe.removeEventListener('resize', this.resizeHandel);
+                    this.iframe.remove();
+                }
+                    window.removeEventListener('resize', this.resizeHandel)
             },
             hoverClass(e, type) {
                 const tr = e.target.closest('tr');
@@ -278,6 +285,10 @@
             getPointOffsetParent() {
                 const left = this.targetOffset.left;
                 const top = this.targetOffset.top;
+                let right = -this.scroller.clientWidth + this.tleftWidth + this.$refs.tbody.clientWidth + this.tRightWidth * 2 - this.scroller.scrollLeft;
+                if(right <= this.tRightWidth) {
+                    right = this.tRightWidth
+                }
                 return {
                     top:
                         top -
@@ -288,7 +299,8 @@
                         left -
                         (this.scrollTarget
                             ? this.scroller.scrollLeft
-                            : getScrollLeft())
+                            : getScrollLeft()),
+                    right
                 };
             },
             scrollPositionInit() {
@@ -337,18 +349,23 @@
                         bottom,
                         right
                     } = this.$refs.tbody.getBoundingClientRect();
+                    // const right = this.$refs.rightClone.getBoundingClientRect().left - window.innerWidth
+                    let r = window.innerWidth - (right + this.tRightWidth)
+                    if(r > 0) {
+                        r = 0
+                    }
                     this.clientRect = {
                         top: top,
                         left: left - this.tleftWidth,
                         bottom,
-                        right
+                        right: -r
                     };
                 } else {
                     const point = this.getPointOffsetParent();
                     this.clientRect = {
                         top: point.top,
                         left: point.left,
-                        right: 0,
+                        right: point.right,
                         bottom: 0
                     };
                 }
@@ -407,7 +424,6 @@
                 }
             },
             'clientRect.left': function(val) {
-                console.log(val, this.offsetLeft);
                 this.fixed.left = val < this.offsetLeft;
                 if(val < 0 && this.isTransition) {
                     this.transitionFixed('leftChange');
@@ -467,6 +483,7 @@
                 }
             }
             &.right {
+                // position: absolute;
                 td, th {
                     &:first-child {
                         border-left: 1px solid #dadada;
@@ -476,5 +493,8 @@
         }
     .rel {
         position: relative;
+    }
+    .flex-no-shrink {
+        flex-shrink: 0;
     }
 </style>

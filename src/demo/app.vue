@@ -19,7 +19,7 @@
                 </div>            
             </div>
         </div>
-        <div class='main-wraper'>
+        <div class='main-wraper' v-if='load'>
             <div class='view'  v-if='index === 1'>
                 <div class='view-title'>
                     表格一:全局滚动.滚动时固定顶部和左侧栏
@@ -40,7 +40,7 @@
                     </div> 
                 </div>
             </div>
-            <div class='view'  v-if='index === 3'>
+            <div class='view' v-if='index === 3'>
                 <div class='view-title'>
                     表格三:高度跟随全局,固定宽度且x轴滚动. 出现虚拟x滚动条.解决滚动条太下无法拖动问题.
                 </div>
@@ -67,7 +67,8 @@ export default {
                 thead: [],
                 tbody: []
             },
-            index: 1
+            index: 2,
+            load: false
         }
     },
     mounted() {
@@ -77,6 +78,7 @@ export default {
         async getData() {
             const data = await axios.post('https://www.easy-mock.com/mock/59e8918c21a50c465d91d78f/tableMock/list')
             this.data = data.data.data;
+            this.load = true;
         }
     }
 }
