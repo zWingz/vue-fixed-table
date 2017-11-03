@@ -67,10 +67,16 @@ export default {
     methods: {
         async getData() {
             const res = await axios.post('https://www.easy-mock.com/mock/59e8918c21a50c465d91d78f/tableMock/list')
-            console.log(res.data.data);
-            this.data.thead = res.data.data.thead
-            this.data.tbody = res.data.data.tbody
+            this.data = res.data.data
             this.load = true;
+        }
+    },
+    watch: {
+        index() {
+            this.load = false;
+            setTimeout(() => {
+                this.load = true
+            }, 250)
         }
     }
 }
