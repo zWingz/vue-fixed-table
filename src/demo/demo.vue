@@ -1,18 +1,14 @@
 <template>
     <FixedTable v-bind='$attrs'>
-        <template slot='fixCorner'>
-            <tr>
-                <AlignCell tag='th' v-for='th in corner' :key='th'>{{th}}</AlignCell>
-            </tr>
-        </template>
-        <template slot='fixleft'>
+        <tr slot='leftThead'>
+            <AlignCell tag='th' v-for='th in corner' :key='th'>{{th}}</AlignCell>
+        </tr>
+        <tr slot='thead'>
+            <AlignCell tag='th' v-for='th in thead' :key='th'>{{th}}</AlignCell>
+        </tr>
+        <template slot='leftBody'>
             <tr v-for='(tr, index) in tbody' :key='index'>
                 <AlignCell v-for='td in tr.td.slice(0,2)' :key='td'>{{td}}</AlignCell>
-            </tr>
-        </template>
-        <template slot='thead'>
-            <tr>
-                <AlignCell tag='th' v-for='th in thead' :key='th'>{{th}}</AlignCell>
             </tr>
         </template>
         <template slot='tbody'>
