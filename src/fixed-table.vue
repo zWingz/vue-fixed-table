@@ -1,31 +1,33 @@
 <template>
     <div class='rel'>
         <div class='fixed-table-container' :style='containerStyle' ref='content' :class='{"scroll-container": selfScroll}'>
-            <table v-if='isFixLeft' ref='leftClone' class='fixed-table table-clone left' :class='addTransitionClass' :style='leftStyle'> 
-                <thead class='fixed-table corner' :style='cornerStyle' :class='[{fixed: fixed.top}, addTransitionClass]'>
-                    <slot name='leftThead'></slot>
-                </thead> 
-                <tbody>
-                    <slot name='leftBody'></slot>
-                </tbody>
-            </table> 
-            <table ref='tbody' class='fixed-table' :style='bodyStyle'>
-                <thead  ref='thead' :style='theadStyle' :class='[{fixed: fixed.top}, addTransitionClass]'>
-                    <slot name='thead'></slot>
-                </thead>
-                <tbody>
-                    <slot name='tbody'></slot>
-                </tbody>
-            </table>
-            <div v-if='$slots.rightBody && (selfScroll || scrollTarget)' class='flex-no-shrink' :style='{width: tRightWidth + "px", height: "1px"}'></div>
-            <table v-if='isFixRight' ref='rightClone' class='fixed-table table-clone right' :class='addTransitionClass' :style='rightStyle'> 
-                <thead class='fixed-table corner' :style='cornerStyle' :class='[{fixed: fixed.top}, addTransitionClass]'>
-                    <slot name='rightThead'></slot>
-                </thead> 
-                <tbody>
-                    <slot name='rightBody'></slot>
-                </tbody>
-            </table>
+            <div class='flex'>
+                <table v-if='isFixLeft' ref='leftClone' class='fixed-table table-clone left flex-grow' :class='addTransitionClass' :style='leftStyle'> 
+                    <thead class='fixed-table corner' :style='cornerStyle' :class='[{fixed: fixed.top}, addTransitionClass]'>
+                        <slot name='leftThead'></slot>
+                    </thead> 
+                    <tbody>
+                        <slot name='leftBody'></slot>
+                    </tbody>
+                </table> 
+                <table ref='tbody' class='fixed-table' :style='bodyStyle'>
+                    <thead  ref='thead' :style='theadStyle' :class='[{fixed: fixed.top}, addTransitionClass]'>
+                        <slot name='thead'></slot>
+                    </thead>
+                    <tbody>
+                        <slot name='tbody'></slot>
+                    </tbody>
+                </table>
+                <!-- <div v-if='$slots.rightBody && (selfScroll || scrollTarget)' class='flex-no-shrink' :style='{width: tRightWidth + "px", height: "1px"}'></div> -->
+                <table v-if='isFixRight' ref='rightClone' class='fixed-table table-clone right' :class='addTransitionClass' :style='rightStyle'> 
+                    <thead class='fixed-table corner' :style='cornerStyle' :class='[{fixed: fixed.top}, addTransitionClass]'>
+                        <slot name='rightThead'></slot>
+                    </thead> 
+                    <tbody>
+                        <slot name='rightBody'></slot>
+                    </tbody>
+                </table>
+            </div>
         </div>
         <scrollxbar v-if='selfScroll'></scrollxbar>
     </div>
@@ -41,6 +43,7 @@
     } from './utils';
     const userAgent = navigator.userAgent;
     const isMoz = /Firefox/.test(userAgent);
+    const isSafari = userAgent.indexOf('Safari') !== -1 && userAgent.indexOf('Chrome') === -1
     export default {
         components: {
             scrollxbar
@@ -126,7 +129,7 @@
             rightStyle() {
                 const base = {
                     transform: `translate3d(${this.leftChange
-                        ? -this.tRightWidth
+                        ? 0
                         : -this.clientRect.right}px, 0px, 0px)`,
                     width: 'initial'
                     // opacity: this.leftChange ? '0' : '1'
@@ -331,11 +334,24 @@
                     const content = this.$refs.content;
                     const { top } = this.$refs.tbody.getBoundingClientRect();
                     const left = -content.scrollLeft;
+                    // const length =
+                    //     this.tleftWidth +
+                    //     this.$refs.tbody.clientWidth +
+                    //     this.tRightWidth * 2;
+                    // const right = length - content.clientWidth + left;
                     const length =
                         this.tleftWidth +
-                        this.$refs.tbody.clientWidth +
-                        this.tRightWidth * 2;
-                    const right = length - content.clientWidth + left;
+                        this.$refs.tbody.offsetWidth +
+                        this.tRightWidth;
+                    // const right = length - content.offsetWidth + left;
+                    let right = length - content.offsetWidth + left;
+                    // console.log('tleft', this.tleftWidth);
+                    // console.log('tbody', this.$refs.tbody.clientWidth);
+                    // console.log('tRight', this.tRightWidth);
+                    // console.log('content', content.clientWidth);
+                    // console.log('left', left);
+                    // console.log('right', right)
+                    right = right < 0 ? 0 : right;
                     this.clientRect = {
                         top: top,
                         left,
@@ -491,6 +507,12 @@
                 }
             }
         }
+    .flex {
+        display: flex;
+    }
+    .flex-grow {
+        flex-grow: 1;
+    }
     .rel {
         position: relative;
     }
