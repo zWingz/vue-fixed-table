@@ -2,7 +2,7 @@
     <div class='rel'>
         <div class='fixed-table-container' :style='containerStyle' ref='content' :class='{"scroll-container": selfScroll}'>
             <div class='flex'>
-                <table v-if='isFixLeft' ref='leftClone' class='fixed-table table-clone left flex-grow' :class='addTransitionClass' :style='leftStyle'> 
+                <table v-if='isFixLeft' ref='leftClone' class='fixed-table table-clone left' :class='addTransitionClass' :style='leftStyle'> 
                     <thead class='fixed-table corner' :style='cornerStyle' :class='[{fixed: fixed.top}, addTransitionClass]'>
                         <slot name='leftThead'></slot>
                     </thead> 
@@ -10,7 +10,7 @@
                         <slot name='leftBody'></slot>
                     </tbody>
                 </table> 
-                <table ref='tbody' class='fixed-table' :style='bodyStyle'>
+                <table ref='tbody' class='fixed-table  flex-grow' :style='bodyStyle'>
                     <thead  ref='thead' :style='theadStyle' :class='[{fixed: fixed.top}, addTransitionClass]'>
                         <slot name='thead'></slot>
                     </thead>
