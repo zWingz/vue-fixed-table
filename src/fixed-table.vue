@@ -263,6 +263,9 @@
                 }
                 const idx = tr.rowIndex;
                 const trs = this.$el.querySelectorAll(`tbody tr:nth-child(${idx})`);
+                if(trs.length === 0) {
+                    return;
+                }
                 trs.forEach(each => {
                     each.classList[type]('hover');
                 });
@@ -288,9 +291,9 @@
             getPointOffsetParent() {
                 const left = this.targetOffset.left;
                 const top = this.targetOffset.top;
-                let right = -this.scroller.clientWidth + this.tleftWidth + this.$refs.tbody.clientWidth + this.tRightWidth * 2 - this.scroller.scrollLeft;
-                if(right <= this.tRightWidth) {
-                    right = this.tRightWidth
+                let right = -this.scroller.clientWidth + this.tleftWidth + this.$refs.tbody.clientWidth + this.tRightWidth - this.scroller.scrollLeft;
+                if(right <= 0) {
+                    right = 0
                 }
                 return {
                     top:
