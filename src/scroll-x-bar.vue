@@ -1,11 +1,11 @@
 <template>
-    <div ref='scroller' class='virtual-scroll overhidden' :style='style' v-show='bottom !== 0 && virtualPercent < 1'>
+    <div ref='scroller' class='virtual-scroll overhidden' :style='style' v-show='bottom > 5 && virtualPercent < 1'>
         <div ref='bar' class="virtual-scroll-bar" :style='barLeft'></div>
     </div>
 </template>
 
 <script>
-import { addResizeEventListener } from './utils';
+import { addResizeEventListener, timerFnc } from 'js/utils';
 export default {
     data() {
         return {
@@ -14,11 +14,9 @@ export default {
             virtualPercent: 0, // 滚动按钮宽度占比
             virtualMouseDownX: 0, // 鼠标按键x坐标
             virtualObserver: {},
-            resizeTimer: null, // resize的timer
-            scrollTimer: null, // 全局滚动的timer
             bar: {}, // 滚动按钮的dom元素
             target: {}, // 滚动元素
-            scrollIng: false, // 是否正在滚动
+            opacity: false, // 是否需要设置透明
             bottom: 0, // 底部
             iframe: {} // iframe,用来监听resize
         }
@@ -45,7 +43,7 @@ export default {
         style() {
             return {
                 transform: `translate3d(0px, ${-this.bottom}px, 0px)`,
-                opacity: this.scrollIng ? 0 : 1
+                opacity: this.opacity ? 0 : 1
             }
         }
     },
@@ -64,7 +62,6 @@ export default {
         this.bar.addEventListener('mousedown', this.barMouseDownHandle, false);
         // 计算滚动属性
         // this.refreshScroll();
-        // window.addEventListener('resize', this.refreshScroll, false);
         // 计算滚动条位置
         this.windowScrollHandle();
         ['scroll', 'resize'].forEach(each => {
@@ -74,8 +71,10 @@ export default {
         // 添加resize监听器
         this.iframe = addResizeEventListener(this.target, this.refreshScroll)
     },
-    activated() {
-        this.targetScrollHandle()
+    async activated() {
+        // this.targetScrollHandle()
+        await this.$nextTick()
+        this.target.scrollLeft = this.scrollLeft;
         this.windowScrollHandle();
     },
     destroyed() {
@@ -85,31 +84,28 @@ export default {
             window.removeEventListener(each, this.windowScrollHandle)
         })
         this.iframe.removeEventListener('resize', this.refreshScroll);
+        this.iframe.remove();
         this.virtualObserver.disconnect();
     },
     methods: {
+        setOpacityShow: timerFnc(function() {
+            this.opacity = false;
+        }, 100),
         /**
          * @function
          * 监听全局滚动, 用来将虚拟滚动条固定在底部
          */
-        windowScrollHandle(e) {
-            this.scrollIng = true;
-            if(this.scrollTimer) {
-                clearTimeout(this.scrollTimer)
+        windowScrollHandle: timerFnc(async function() {
+            const { bottom } = this.target.getBoundingClientRect()
+            let result = bottom - document.documentElement.clientHeight;
+            if(result < 0) {
+                result = 0
             }
-            this.scrollTimer = setTimeout(() => {
-                const { bottom } = this.target.getBoundingClientRect()
-                // const height = document.body.offsetHeight;
-                // let result = bottom - height;
-                let result = bottom - document.documentElement.clientHeight;
-                if(result < 0) {
-                    result = 0
-                }
-                this.bottom = result;
-                this.scrollIng = false;
-                this.scrollTimer = null;
-            }, 100)
-        },
+            this.bottom = result;
+            this.setOpacityShow()
+        }, 100, function() {
+            this.opacity = true;
+        }),
         /**
          * @function
          * 目标滚动时候同步到虚拟滚动条位置
@@ -121,26 +117,20 @@ export default {
          * @function
          * 监听target的大小变化,重新计算虚拟滚动条的宽度.以及滚动占比
          */
-        refreshScroll(e) {
-            if(this.resizeTimer) {
-                clearTimeout(this.resizeTimer);
+        refreshScroll: timerFnc(function() {
+            if(this._isDestroyed) {
+                return;
             }
-            this.resizeTimer = setTimeout(() => {
-                if(this._isDestroyed) {
-                    return;
-                }
-                this.scrollWidth = this.target.scrollWidth - (this.target.offsetWidth || this.target.clientWidth);
-
-                if(this.scrollLeft > this.scrollWidth || this.scrollWidth === 0) {
-                    this.scrollLeft = 0;
-                }
-                this.virtualPercent = this.target.offsetWidth / this.target.scrollWidth;
-                this.resizeTimer = null;
-                // this.scrollLeft = this.target.scrollLeft
-                this.windowScrollHandle();
-                this.targetScrollHandle();
-            }, 100)
-        },
+            this.scrollWidth = this.target.scrollWidth - (this.target.offsetWidth || this.target.clientWidth);
+            if(this.scrollLeft > this.scrollWidth || this.scrollWidth === 0) {
+                this.scrollLeft = 0;
+            }
+            this.virtualPercent = this.target.offsetWidth / this.target.scrollWidth;
+            this.windowScrollHandle();
+            this.targetScrollHandle();
+        }, 100, function() {
+                this.opacity = true;
+            }),
         /**
          * @event
          * 点解滚动条给body监听mousemove事件以及mouseup事件.

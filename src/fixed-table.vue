@@ -2,8 +2,8 @@
     <div class='rel'>
         <div class='fixed-table-container' :style='containerStyle' ref='content' :class='{"scroll-container": selfScroll}'>
             <div class='flex'>
-                <table v-if='isFixLeft' ref='leftClone' class='fixed-table table-clone left' :class='addTransitionClass' :style='leftStyle'> 
-                    <thead class='fixed-table corner' :style='cornerStyle' :class='[{fixed: fixed.top}, addTransitionClass]'>
+                <table v-if='isFixLeft' ref='leftClone' class='fixed-table table-clone left' :style='leftStyle'> 
+                    <thead class='fixed-table corner' :style='cornerStyle' :class='[{fixed: fixed.top}]'>
                         <slot name='leftThead'></slot>
                     </thead> 
                     <tbody>
@@ -11,16 +11,15 @@
                     </tbody>
                 </table> 
                 <table ref='tbody' class='fixed-table  flex-grow' :style='bodyStyle'>
-                    <thead  ref='thead' :style='theadStyle' :class='[{fixed: fixed.top}, addTransitionClass]'>
+                    <thead  ref='thead' :style='theadStyle' :class='[{fixed: fixed.top}]'>
                         <slot name='thead'></slot>
                     </thead>
                     <tbody>
                         <slot name='tbody'></slot>
                     </tbody>
                 </table>
-                <!-- <div v-if='$slots.rightBody && (selfScroll || scrollTarget)' class='flex-no-shrink' :style='{width: tRightWidth + "px", height: "1px"}'></div> -->
-                <table v-if='isFixRight' ref='rightClone' class='fixed-table table-clone right' :class='addTransitionClass' :style='rightStyle'> 
-                    <thead class='fixed-table corner' :style='cornerStyle' :class='[{fixed: fixed.top}, addTransitionClass]'>
+                <table v-if='isFixRight' ref='rightClone' class='fixed-table table-clone right' :style='rightStyle'> 
+                    <thead class='fixed-table corner' :style='cornerStyle' :class='[{fixed: fixed.top}]'>
                         <slot name='rightThead'></slot>
                     </thead> 
                     <tbody>
@@ -34,19 +33,21 @@
 </template>
 
 <script>
-    import scrollxbar from './scroll-x-bar';
+    import VirtualScrollBar from 'components/VirtualScrollBar';
+    import { getStyle, querySelectorAll } from 'js/dom';
     import {
-        getStyle,
+        addResizeEventListener,
+        timerFnc,
         getScrollTop,
-        getScrollLeft,
-        addResizeEventListener
-    } from './utils';
+        getScrollLeft
+    } from 'js/utils';
     const userAgent = navigator.userAgent;
     const isMoz = /Firefox/.test(userAgent);
-    const isSafari = userAgent.indexOf('Safari') !== -1 && userAgent.indexOf('Chrome') === -1
+    const isSafari =
+        userAgent.indexOf('Safari') !== -1 && userAgent.indexOf('Chrome') === -1;
     export default {
         components: {
-            scrollxbar
+            VirtualScrollBar
         },
         props: {
             offsetLeft: {
@@ -84,18 +85,12 @@
                 },
                 resizeObserver: undefined, // resize的observer
                 hoverObserver: undefined, // 用于绑定hover事件
-                // container: {
-                //     paddingTop: 0
-                // },
                 tbodyWidth: 0, // 表格宽度
                 tleftWidth: 0, // 左侧表格宽度,
                 tRightWidth: 0, // 右侧表格宽度,
-                topChange: false,
-                leftChange: false,
-                topChangeTimer: undefined,
-                leftChangeTimer: undefined,
-                updateTimer: undefined,
-                scrollTimer: undefined,
+                topChanging: false,
+                leftChanging: false,
+                opacity: 1,
                 scrolling: false,
                 iframe: {}
             };
@@ -103,45 +98,52 @@
         computed: {
             theadStyle() {
                 return {
-                    transform: `translate3d(0px, ${this.fixed.top && !this.topChange
+                    transform: `translate3d(0px, ${this.fixed.top &&
+                    !this.topChanging
                         ? -this.clientRect.top
                         : 0}px, 1px)`
-                    // opacity: this.topChange ? '0' : '1'
                 };
             },
             bodyStyle() {
                 return {
                     // marginLeft: '-1px',
-                    width: this.tbodyWidth - (this.isFixLeft ? 1 : 0) + 'px',
-                    position: 'relative',
-                    left: '-1px'
+                    width: this.tbodyWidth + 'px'
+                    // width: this.tbodyWidth - (this.isFixLeft ? 1 : 0) + 'px',
+                    // position: 'relative',
+                    // left: '-1px'
                 };
             },
             leftStyle() {
                 return {
-                    transform: `translate3d(${this.fixed.left && !this.leftChange
+                    transform: `translate3d(${this.fixed.left && !this.leftChanging
                         ? this.offsetLeft - this.clientRect.left
                         : 0}px, 0px, 0px)`,
-                    width: 'initial'
-                    // opacity: this.leftChange ? '0' : '1'
+                    width: 'initial',
+                    opacity: !(
+                        this.offsetLeft - this.clientRect.left >
+                        this.tleftWidth
+                    )
+                        ? 1
+                        : this.opacity
                 };
             },
             rightStyle() {
                 const base = {
-                    transform: `translate3d(${this.leftChange
+                    transform: `translate3d(${this.leftChanging
                         ? 0
                         : -this.clientRect.right}px, 0px, 0px)`,
-                    width: 'initial'
-                    // opacity: this.leftChange ? '0' : '1'
+                    width: 'initial',
+                    opacity: this.opacity
                 };
                 return base;
             },
             cornerStyle() {
                 return {
-                    transform: `translate3d(0px, ${this.fixed.top && !this.topChange
+                    transform: `translate3d(0px, ${this.fixed.top &&
+                    !this.topChanging
                         ? -this.clientRect.top
                         : 0}px, 1px)`
-                    // opacity: (this.topChange || this.leftChange) ? '0' : '1'
+                    // opacity: (this.topChanging || this.leftChanging) ? '0' : '1'
                 };
             },
             containerStyle() {
@@ -150,18 +152,18 @@
                 };
             },
             scroller() {
-                if(!this.scrollTarget) {
+                if (!this.scrollTarget) {
                     return window;
                 }
                 let result;
-                if(typeof this.scrollTarget === 'string') {
+                if (typeof this.scrollTarget === 'string') {
                     result = document.querySelector(this.scrollTarget);
                 } else {
                     result = this.scrollTarget;
                 }
-                if(result) {
+                if (result) {
                     const pos = getStyle(result, 'position');
-                    if(pos !== 'absolute' && pos !== 'fixed') {
+                    if (pos !== 'absolute' && pos !== 'fixed') {
                         result.style.position = 'relative';
                     }
                 }
@@ -172,22 +174,26 @@
                 return this.$refs.content;
             },
             isFixLeft() {
-                return !!this.$slots.leftBody;
+                return !!this.$slots.leftThead;
             },
             isFixRight() {
-                return !!this.$slots.rightBody;
+                return !!this.$slots.rightThead;
             },
             isTransition() {
-                return isMoz || this.useTrans;
-            },
-            addTransitionClass() {
-                return this.isTransition && !(this.leftChange || this.topChange)
-                    ? 'fixed-table-transition'
-                    : '';
+                // return false;
+                return isMoz || isSafari || this.useTrans;
             }
+            // addTransitionClass() {
+            //     return this.isTransition && !(this.leftChanging || this.topChanging)
+            //         ? 'common-table-transition'
+            //         : '';
+            // },
+            // addOpacityClass() {
+            //     return this.opacity ? 'opacity-transition' : ''
+            // }
         },
         mounted() {
-            this.resizeObserver = new MutationObserver(this.resizeHandel);
+            this.resizeObserver = new MutationObserver(this.observerHandle);
             this.init();
         },
         activated() {
@@ -214,27 +220,37 @@
         methods: {
             init() {
                 this.scroller.addEventListener('scroll', this.scrollHandle, false);
-                if(this.selfScroll) {
+                this.scroller.addEventListener(
+                    'mousewheel',
+                    this.scrollerMouseWheel,
+                    false
+                );
+                if (this.selfScroll) {
+                    this.xScroller.addEventListener(
+                        'mousewheel',
+                        this.xScrollerMouseWheel,
+                        false
+                    );
                     this.xScroller.addEventListener(
                         'scroll',
                         this.scrollHandle,
                         false
                     );
                 }
-                if(this.selfScroll || this.scrollTarget) {
+                if (this.selfScroll || this.scrollTarget) {
                     this.iframe = addResizeEventListener(
                         this.$refs.content,
                         this.resizeHandel
                     );
                 } else {
-                    window.addEventListener('resize', this.resizeHandel, false)
+                    window.addEventListener('resize', this.resizeHandel, false);
                 }
                 this.resizeObserver.observe(this.$refs.content, {
                     childList: true,
                     subtree: true,
                     characterData: true
                 });
-                if(this.isFixLeft || this.isFixRight) {
+                if (this.isFixLeft || this.isFixRight) {
                     this.$el.addEventListener('mouseover', this.mouseOver, false);
                     this.$el.addEventListener('mouseout', this.mouseLeave, false);
                 }
@@ -242,28 +258,39 @@
             },
             destroyed() {
                 this.scroller.removeEventListener('scroll', this.scrollHandle);
-                if(this.selfScroll) {
+                this.scroller.removeEventListener(
+                    'mousewheel',
+                    this.scrollerMouseWheel
+                );
+                if (this.selfScroll) {
+                    this.xScroller.removeEventListener(
+                        'mousewheel',
+                        this.xScrollerMouseWheel
+                    );
                     this.xScroller.removeEventListener('scroll', this.scrollHandle);
                 }
-                if(this.isFixLeft || this.isFixRight) {
+                if (this.isFixLeft || this.isFixRight) {
                     this.$el.removeEventListener('mouseover', this.mouseOver);
                     this.$el.removeEventListener('mouseout', this.mouseLeave);
                 }
                 this.resizeObserver.disconnect();
-                if(this.selfScroll || this.scrollTarget) {
+                if (this.selfScroll || this.scrollTarget) {
                     this.iframe.removeEventListener('resize', this.resizeHandel);
                     this.iframe.remove();
                 }
-                window.removeEventListener('resize', this.resizeHandel)
+                window.removeEventListener('resize', this.resizeHandel);
             },
             hoverClass(e, type) {
                 const tr = e.target.closest('tr');
-                if(!tr) {
+                if (!tr) {
                     return;
                 }
                 const idx = tr.rowIndex;
-                const trs = this.$el.querySelectorAll(`tbody tr:nth-child(${idx})`);
-                if(trs.length === 0) {
+                const trs = querySelectorAll(
+                    `tbody tr:nth-child(${idx})`,
+                    this.$el
+                );
+                if (trs.length === 0) {
                     return;
                 }
                 trs.forEach(each => {
@@ -280,7 +307,7 @@
                 let top = dom.offsetTop;
                 let left = dom.offsetLeft;
                 dom = dom.parentElement;
-                while(dom && dom !== parent) {
+                while (dom && dom !== parent) {
                     top += dom.offsetTop;
                     left += dom.offsetLeft;
                     dom = dom.parentElement;
@@ -291,9 +318,14 @@
             getPointOffsetParent() {
                 const left = this.targetOffset.left;
                 const top = this.targetOffset.top;
-                let right = -this.scroller.clientWidth + this.tleftWidth + this.$refs.tbody.clientWidth + this.tRightWidth - this.scroller.scrollLeft;
-                if(right <= 0) {
-                    right = 0
+                let right =
+                    -this.scroller.clientWidth +
+                    this.tleftWidth +
+                    this.$refs.tbody.clientWidth +
+                    this.tRightWidth -
+                    this.scroller.scrollLeft;
+                if (right <= this.tRightWidth) {
+                    right = this.tRightWidth;
                 }
                 return {
                     top:
@@ -311,11 +343,11 @@
             },
             scrollPositionInit() {
                 const { left, top } = this.clientRect;
-                if(this.selfScroll) {
+                if (this.selfScroll) {
                     this.$nextTick(() => {
                         this.$refs.content.scrollLeft = -this.clientRect.left;
                     });
-                } else if(this.scrollTarget) {
+                } else if (this.scrollTarget) {
                     this.$nextTick(() => {
                         this.scroller.scrollLeft = -left;
                         this.scroller.scrollTop = -top;
@@ -324,36 +356,37 @@
                     scrollTo(left + this.tleftWidth, top);
                 }
             },
-            scrollHandle() {
-                if(this.scrollTimer) {
-                    clearTimeout(this.scrollTimer);
+            scrollerMouseWheel(e) {
+                e.preventDefault();
+                let target;
+                if (this.scrollTarget) {
+                    target = this.scroller;
+                } else {
+                    target = document.scrollingElement;
                 }
+                target.scrollTop += e.deltaY;
+                target.scrollLeft -= e.deltaX;
+            },
+            xScrollerMouseWheel(e) {
+                e.preventDefault();
+                // document.scrollingElement.scrollTop += e.deltaY;
+                this.xScroller.scrollLeft += e.deltaX;
+            },
+            setScrollIng: timerFnc(function() {
+                this.scrolling = false;
+            }, 250),
+            scrollHandle() {
                 this.scrolling = true;
-                this.scrollTimer = setTimeout(() => {
-                    this.scrolling = false;
-                    this.scrollTimer = undefined;
-                }, 250);
-                if(this.selfScroll) {
+                this.setScrollIng();
+                if (this.selfScroll) {
                     const content = this.$refs.content;
                     const { top } = this.$refs.tbody.getBoundingClientRect();
                     const left = -content.scrollLeft;
-                    // const length =
-                    //     this.tleftWidth +
-                    //     this.$refs.tbody.clientWidth +
-                    //     this.tRightWidth * 2;
-                    // const right = length - content.clientWidth + left;
                     const length =
                         this.tleftWidth +
-                        this.$refs.tbody.offsetWidth +
+                        this.$refs.tbody.clientWidth +
                         this.tRightWidth;
-                    // const right = length - content.offsetWidth + left;
-                    let right = length - content.offsetWidth + left;
-                    // console.log('tleft', this.tleftWidth);
-                    // console.log('tbody', this.$refs.tbody.clientWidth);
-                    // console.log('tRight', this.tRightWidth);
-                    // console.log('content', content.clientWidth);
-                    // console.log('left', left);
-                    // console.log('right', right)
+                    let right = length - content.clientWidth + left;
                     right = right < 0 ? 0 : right;
                     this.clientRect = {
                         top: top,
@@ -361,17 +394,16 @@
                         right,
                         bottom: 0
                     };
-                } else if(!this.scrollTarget) {
+                } else if (!this.scrollTarget) {
                     const {
                         top,
                         left,
                         bottom,
                         right
                     } = this.$refs.tbody.getBoundingClientRect();
-                    // const right = this.$refs.rightClone.getBoundingClientRect().left - window.innerWidth
-                    let r = window.innerWidth - (right + this.tRightWidth)
-                    if(r > 0) {
-                        r = 0
+                    let r = window.innerWidth - (right + this.tRightWidth);
+                    if (r > 0) {
+                        r = 0;
                     }
                     this.clientRect = {
                         top: top,
@@ -389,26 +421,30 @@
                     };
                 }
             },
-            resizeHandel() {
-                if(this.updateTimer) {
-                    clearTimeout(this._isDestroyed);
-                }
-                this.updateTimer = setTimeout(() => {
+            observerHandle: timerFnc(function() {
+                this.update();
+            }, 0),
+            resizeHandel: timerFnc(
+                function() {
                     this.update();
-                    this.updateTimer = undefined;
-                }, 200);
-            },
+                    this.opacity = 1;
+                },
+                0,
+                function() {
+                    this.opacity = 0;
+                }
+            ),
             update() {
-                if(this._isDestroyed) {
+                if (this._isDestroyed) {
                     return;
                 }
-                if(this.isFixLeft && this.$refs.leftClone) {
+                if (this.isFixLeft && this.$refs.leftClone) {
                     this.tleftWidth = this.$refs.leftClone.clientWidth;
                 }
-                if(this.isFixRight && this.$refs.rightClone) {
+                if (this.isFixRight && this.$refs.rightClone) {
                     this.tRightWidth = this.$refs.rightClone.clientWidth;
                 }
-                if(this.$refs.content) {
+                if (this.$refs.content) {
                     this.tbodyWidth =
                         this.$refs.content.clientWidth -
                         this.tleftWidth -
@@ -418,17 +454,12 @@
                     this.scrollHandle();
                 });
             },
-            transitionFixed(key) {
-                const timer = this[key + 'Timer'];
-                if(timer) {
-                    clearTimeout(timer);
-                    this[key + 'Timer'] = undefined;
-                }
-                this[key] = true;
-                this[key + 'Timer'] = setTimeout(() => {
-                    this[key] = false;
-                }, 250);
-            }
+            transitionTop: timerFnc(function() {
+                this.topChanging = false;
+            }, 0),
+            transitionLeft: timerFnc(function() {
+                this.leftChanging = false;
+            }, 0)
         },
         watch: {
             offsetLeft(val) {
@@ -438,14 +469,16 @@
             },
             'clientRect.top': function(val, old) {
                 this.fixed.top = val < 0;
-                if(val < 0 && this.isTransition) {
-                    this.transitionFixed('topChange');
+                if (val < 0 && this.isTransition) {
+                    this.topChanging = true;
+                    this.transitionTop();
                 }
             },
             'clientRect.left': function(val) {
                 this.fixed.left = val < this.offsetLeft;
-                if(val < 0 && this.isTransition) {
-                    this.transitionFixed('leftChange');
+                if (val < 0 && this.isTransition) {
+                    this.leftChanging = true;
+                    this.transitionLeft();
                 }
             }
         }
@@ -483,33 +516,35 @@
         }
     }
     .fixed-table-transition {
-        transition: transform .4s ease-in-out;
+        transition: transform 0.4s ease-in-out;
     }
     .table-clone {
-            // position: absolute;
-            z-index: 1;
-            &.corner {
-                z-index: 2;
-            }
-            &.left {
-                td, th {
-                    &:last-child {
-                        border-right: 1px solid #dadada;
-                    }
-                    &:first-child {
-                        border-left: none;
-                    }
+        // position: absolute;
+        z-index: 1;
+        &.corner {
+            z-index: 2;
+        }
+        &.left {
+            td,
+            th {
+                &:last-child {
+                    border-right: 1px solid #dadada;
                 }
-            }
-            &.right {
-                // position: absolute;
-                td, th {
-                    &:first-child {
-                        border-left: 1px solid #dadada;
-                    }
+                &:first-child {
+                    border-left: none;
                 }
             }
         }
+        &.right {
+            // position: absolute;
+            td,
+            th {
+                &:first-child {
+                    border-left: 1px solid #dadada;
+                }
+            }
+        }
+    }
     .flex {
         display: flex;
     }
