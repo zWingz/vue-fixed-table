@@ -27,11 +27,12 @@ jobs:
           paths:
             - node_modules
           key: v1-dependencies-{{ checksum "package.json" }}
-      - run: npm run build  
-      - run: git checkout .
       - run: git checkout gh-pages #
+      # - run: git checkout .
       - run: git reset --hard origin/master # 同上
+      - run: npm run build  
       - run: git add .
+      - run: git add -u
       - run: git config user.name "zWingz" # 你的 GitHub 用户名，一定要改，不要填我的
       - run: git config user.email "371657110@qq.com" # 你的 GitHub 邮箱，一定要改，不要填我的
       - run: git commit -m "Updated by circleci - `date`" # 你可以修改 commit 的文字，后面的 date 代表时间
