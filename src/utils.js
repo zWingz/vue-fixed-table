@@ -71,3 +71,9 @@ export function timerFnc(fnc, t, before) {
         }, time)
     }
 }
+
+export function querySelectorAll(selector, context) {
+    const ctx = context || document;
+    const dom = context.querySelectorAll(selector)
+    return Array.prototype.slice.call(dom, 0)
+}

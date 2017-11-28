@@ -33,7 +33,7 @@
                 <div class='view-content' v-loading='!load'>
                     <template v-if='load'>
                         <demo :data='data' :offsetLeft='200' v-if='index === 1'></demo>
-                        <div id='scroll' class='scroll-container' v-if='index === 2'>
+                        <div id='scroll' class='scroll-container border' v-if='index === 2'>
                             <demo :data='data' scrollTarget='#scroll'></demo>
                         </div> 
                         <demo :data='data' self-scroll v-if='index === 3'></demo>

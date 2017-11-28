@@ -5,7 +5,7 @@
 </template>
 
 <script>
-import { addResizeEventListener, timerFnc } from 'js/utils';
+import { addResizeEventListener, timerFnc } from 'utils';
 export default {
     data() {
         return {
