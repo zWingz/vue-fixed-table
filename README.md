@@ -1,7 +1,8 @@
 # vue-table 组件
 
-[Demo](https://zwingz.github.io/vue-fixed-table/release/demo.html)
+[![CircleCI](https://circleci.com/gh/zWingz/vue-fixed-table.svg?style=svg)](https://circleci.com/gh/zWingz/vue-fixed-table)
 
+[Demo](https://zwingz.github.io/vue-fixed-table/release/demo.html)
 
 功能：
 + 固定表格头、左侧栏
