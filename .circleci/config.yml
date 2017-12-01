@@ -27,8 +27,8 @@ jobs:
           paths:
             - node_modules
           key: v1-dependencies-{{ checksum "package.json" }}
+      - run: git checkout .
       - run: git checkout gh-pages #
-      # - run: git checkout .
       - run: git reset --hard origin/master # 同上
       - run: npm run build  
       - run: git add .
