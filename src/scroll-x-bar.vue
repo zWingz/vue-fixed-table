@@ -1,5 +1,5 @@
 <template>
-    <div ref='scroller' class='virtual-scroll overhidden' :style='style' v-show='bottom > 5 && virtualPercent < 1'>
+    <div ref='scroller' class='virtual-scroll overhidden' :style='style' v-show='bottom > 5 && virtualPercent < 1' @mousedown.self='barClickHandle'>
         <div ref='bar' class="virtual-scroll-bar" :style='barLeft' @mousedown='barMouseDownHandle'></div>
     </div>
 </template>
