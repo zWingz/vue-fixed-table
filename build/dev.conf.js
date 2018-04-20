@@ -7,23 +7,17 @@ var baseWebpackConfig = require('./base.conf')
 var HtmlWebpackPlugin = require('html-webpack-plugin')
     // var FriendlyErrorsPlugin = require('friendly-errors-webpack-plugin')
 var path = require('path')
+const entries = {};
 const devRules = utils.styleLoaders({
     sourceMap: config.dev.cssSourceMap,
     extract: config.dev.extract
 });
-// devRules.push({
-//     test: /\.vue|\.js$/,
-//     use: [{
-//         loader: 'eslint-loader',
-//         options: {
-//             formatter: require('eslint-friendly-formatter')
-//         }
-//     }],
-//     include: path.resolve(__dirname, '../src'),
-//     enforce: 'pre',
-//     exclude: /node_modules|vendor|dist/,
-// });
+Object.keys(config.entry).forEach(each => {
+    const opt = config.entry[each]
+    entries[each] = opt.path;
+})
 module.exports = merge(baseWebpackConfig, {
+    entry: entries,
     module: {
         rules: devRules
     },

@@ -46,3 +46,52 @@
 + 生产环境
 
     `npm run build`
+
+## Fixed-Table 使用
+
+固定表头, 左侧以及右侧
+
+需要通过一定的slot插入相应的内容达到固定
+
+### options
+
+|    props     | 类型           | 默认  | 描述                                                         |
+| :----------: | -------------- | ----- | ------------------------------------------------------------ |
+|  offsetLeft  | String, Number | 0     | 左侧偏移                                                     |
+|  offsetTop   | String, Number | 0     | 顶部偏移                                                     |
+| scrollTarget | Object, String | 无    | 滚动容器, 可传dom元素或者选择器, 没有默认为window, 既全局滚动.(DEMO1和2) |
+|   useTrans   | Boolean        | false | 是否使用动画做回退方案, 在safari和firefox下会有闪动. 所以safari和firefox默认开启. |
+|  selfScroll  | Boolean        | false | 是否自滚动. 垂直滚动会依赖全局, 横向滚动会依赖自身. 所以需要额外样式是的容器能产生横向的滚动条.(DEMO 3) |
+
+
+### slot
+
+需要通过`slot`插入到相应的插槽中, 通过对插槽的控制达到固定效果
+
+| slot       | 介绍             |
+| ---------- | ------------ |
+| leftThead  | 左侧表头     |
+| thead      | 中间表头     |
+| rightThead | 右侧表头     |
+| leftBody   | 左侧固定表体 |
+| tbody      | 表体         |
+| rightBody  | 右侧固定表体 |
+
+
+## align-cell 使用
+
+### options
+| props | 类型   | 默认 | 描述       |
+| ------- | ------ | ---- | ---------- |
+| dir     | String | 'l'  | 对齐方向   |
+| tag     | String | 'td' | 渲染的标签 |
+
+
+## scroll-x-bar 使用
+
+虚拟的横向滚动条, 需要让容易自行产生横向滚动.
+
+让容器在页面高度不足的时候, 也可以拖动横向滚动条.
+
+**一定要让容器产生横向滚动**
+

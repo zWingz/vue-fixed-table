@@ -30,7 +30,7 @@ jobs:
       - run: git checkout .
       - run: git checkout gh-pages #
       - run: git reset --hard origin/master # 同上
-      - run: npm run build  
+      - run: npm run demo  
       - run: git add .
       - run: git add -u
       - run: git config user.name "zWingz" # 你的 GitHub 用户名，一定要改，不要填我的

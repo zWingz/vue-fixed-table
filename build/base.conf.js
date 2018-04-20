@@ -4,14 +4,7 @@ var utils = require('./utils')
 var projectRoot = path.resolve(__dirname, '../')
 var isProduction = process.env.NODE_ENV !== 'development';
 
-// console.log('base conf', process.env.NODE_ENV, 'isProduction :', isProduction)
-const entries = {};
-Object.keys(config.entry).forEach(each => {
-    const opt = config.entry[each]
-    entries[each] = opt.path;
-})
 module.exports = {
-    entry: entries,
     output: {
         path: isProduction ? config.build.assetsRoot : config.test.assetsRoot,
         publicPath: isProduction ? config.build.assetsPublicPath : config.dev.assetsPublicPath,
