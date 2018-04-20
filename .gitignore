@@ -10,7 +10,6 @@ test-build/
 .eslintrc.json
 npm-debug.*
 stats.json
-release/
 stat.json
 yarn-error.log
 .DS_Store
