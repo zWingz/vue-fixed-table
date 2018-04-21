@@ -66,7 +66,7 @@ export default {
     },
     methods: {
         async getData() {
-            const res = await axios.post('http://www.easy-mock.com/mock/5ad94a09505da819e171ff74/tableMock/list')
+            const res = await axios.post('https://www.easy-mock.com/mock/5ad94a09505da819e171ff74/tableMock/list')
             this.data = res.data.data
             this.load = true;
         }
