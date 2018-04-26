@@ -13,7 +13,7 @@ body {
     padding: 0;
     font-size: 14px;
     height: 100%;
-    min-width: 998px;
+    // min-width: 998px;
 }
 
 .scroll-container {
@@ -57,21 +57,23 @@ body {
     display: flex;
     background: $globalBg;
     min-height: 100%;
-    &.full {
-        height: 100%;
-    }
     &.width-full {
         width: 100%;
     }
-}
-
-.main-container.full,
-.main-container.width-full {
-    .main-wraper {
-        width: calc(100% - 200px);
+    &.full {
+        width: 100%;
+        height: 100%;
     }
 }
-
+.main-wraper {
+    &.width-full {
+        width: 100%;
+    }
+    &.full {
+        width: 100%;
+        height: 100%;
+    }
+}
 
 /* 主容器 end */
 
@@ -80,50 +82,47 @@ body {
 
 .sidebar {
     position: fixed;
-    display: flex;
-    flex-direction: column;
-    flex-shrink: 0;
-    width: 200px;
-    height: 100%;
+    left: 0px;
+    right: 0px;
+    top: 0px;
+    height: 50px;
+    line-height: 50px;
+    width: 100%;
     transition: all .3s ease;
     z-index: 999;
+    background: #fff;
+    color: #000;
+    border-bottom: 1px solid #6a82ec;
 }
 
-
+.inner {
+    display: flex;
+    width: 980px;
+    margin: 0 auto;
+}
 /* 导航栏 start */
 
-.menu-container {
-    height: 100vh;
-    background: $b2;
-    padding-top: 20px;
-    .root-menu {
-        position: relative;
-        color: $b4;
-        border-left: 2px solid transparent;
-        line-height: 60px;
-        &.active {
-            border-color: $s1;
-            background: $b1;
-            .menu-title {
-                color: #fff;
-            }
-        }
-    }
-    .menu-title {
-        padding-right: 10px;
-        padding-left: 20px;
-        cursor: pointer;
+.root-menu {
+    position: relative;
+    color: $b4;
+    padding: 0 20px;
+    font-size: 16px;
+    cursor: pointer;
+    margin: 0 5px;
+    &.active, &:hover {
         font-weight: bold;
+        color: #6a82ec;
     }
 }
-
 .main-wraper {
+    margin: 0 auto;
+    padding-top: 40px;
     position: relative;
+    box-sizing: border-box;
     display: flex;
     background: $globalBg;
     flex: 1 1 auto;
     flex-direction: column;
-    margin-left: 200px;
     transition: all .3s ease;
 }
 
@@ -143,7 +142,10 @@ body {
     position: relative;
     font-size: 16px;
 }
-
+.code {
+    background: #fff;
+    margin-bottom: 20px;
+}
 .view-content {
     flex: 1 1 auto;
     padding: 20px;

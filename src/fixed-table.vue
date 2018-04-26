@@ -99,10 +99,11 @@
         computed: {
             theadStyle() {
                 return {
-                    transform: `translate3d(0px, ${this.fixed.top &&
-                    !this.topChanging
-                        ? -this.clientRect.top
-                        : 0}px, 1px)`
+                    transform: `translate3d(0px, ${
+                        this.fixed.top && !this.topChanging
+                            ? -(this.clientRect.top - this.offsetTop)
+                            : 0
+                    }px, 1px)`
                 }
             },
             bodyStyle() {
@@ -116,9 +117,11 @@
             },
             leftStyle() {
                 return {
-                    transform: `translate3d(${this.fixed.left && !this.leftChanging
-                        ? this.offsetLeft - this.clientRect.left
-                        : 0}px, 0px, 0px)`,
+                    transform: `translate3d(${
+                        this.fixed.left && !this.leftChanging
+                            ? this.offsetLeft - this.clientRect.left
+                            : 0
+                    }px, 0px, 0px)`,
                     width: 'initial',
                     opacity: !(
                         this.offsetLeft - this.clientRect.left >
@@ -130,9 +133,9 @@
             },
             rightStyle() {
                 const base = {
-                    transform: `translate3d(${this.leftChanging
-                        ? 0
-                        : -this.clientRect.right}px, 0px, 0px)`,
+                    transform: `translate3d(${
+                        this.leftChanging ? 0 : -this.clientRect.right
+                    }px, 0px, 0px)`,
                     width: 'initial',
                     opacity: this.opacity
                 }
@@ -140,10 +143,11 @@
             },
             cornerStyle() {
                 return {
-                    transform: `translate3d(0px, ${this.fixed.top &&
-                    !this.topChanging
-                        ? -this.clientRect.top
-                        : 0}px, 1px)`
+                    transform: `translate3d(0px, ${
+                        this.fixed.top && !this.topChanging
+                            ? -(this.clientRect.top - this.offsetTop)
+                            : 0
+                    }px, 1px)`
                     // opacity: (this.topChanging || this.leftChanging) ? '0' : '1'
                 }
             },
@@ -155,6 +159,7 @@
             scroller() {
                 if(!this.scrollTarget) {
                     return window
+                    // return document.scrollingElement
                 }
                 let result
                 if(typeof this.scrollTarget === 'string') {
@@ -191,11 +196,11 @@
         },
         activated() {
             this.init()
-            Array.from(
-                document.querySelectorAll('tbody tr.hover')
-            ).forEach(each => {
-                each.classList.remove('hover')
-            })
+            Array.from(document.querySelectorAll('tbody tr.hover')).forEach(
+                each => {
+                    each.classList.remove('hover')
+                }
+            )
         },
         deactivated() {
             this.destroyed()
@@ -295,7 +300,7 @@
                 let top = dom.offsetTop
                 let left = dom.offsetLeft
                 dom = dom.parentElement
-                while(dom && dom !== parent) {
+                while (dom && dom !== parent) {
                     top += dom.offsetTop
                     left += dom.offsetLeft
                     dom = dom.parentElement
@@ -381,9 +386,7 @@
                     const {top} = tbody.getBoundingClientRect()
                     const left = -content.scrollLeft
                     const length =
-                        this.tleftWidth +
-                        tbody.clientWidth +
-                        this.tRightWidth
+                        this.tleftWidth + tbody.clientWidth + this.tRightWidth
                     let right = length - content.clientWidth + left
                     right = right < 0 ? 0 : right
                     this.clientRect = {
@@ -395,17 +398,22 @@
                 } else if(!this.scrollTarget) {
                     const {
                         top,
-                        left,
+                        left: l,
                         bottom,
                         right
                     } = tbody.getBoundingClientRect()
-                    let r = window.innerWidth - (right + this.tRightWidth)
+                    const left = l - this.tleftWidth
+                    let r =
+                        window.innerWidth -
+                        right -
+                        this.tRightWidth -
+                        (window.scrollbars.visible ? 9 : 0)
                     if(r > 0) {
                         r = 0
                     }
                     this.clientRect = {
                         top: top,
-                        left: left - this.tleftWidth,
+                        left,
                         bottom,
                         right: -r
                     }
@@ -466,7 +474,7 @@
                 }, 250)
             },
             'clientRect.top': function(val, old) {
-                this.fixed.top = val < 0
+                this.fixed.top = val < this.offsetTop
                 if(val < 0 && this.isTransition) {
                     this.topChanging = true
                     this.transitionTop()
