@@ -2,7 +2,7 @@
 
 ``` html
 <!-- 产生局部滚动 -->
-<FixedTable scrollTarget='#scroll' self-scroll>
+<FixedTable self-scroll>
     <tr slot='leftThead'>
         <!-- some -->
     </tr>
