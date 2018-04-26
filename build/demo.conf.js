@@ -13,16 +13,43 @@ var OptimizeCSSPlugin = require('optimize-css-assets-webpack-plugin');
 // var BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 // webpack内置的不支持压缩es6,所以使用最原始的plugin压缩
 const UglifyEsPlugin = require('uglifyjs-webpack-plugin');
+const hljs = require('highlight')
 
 var env = !isProduction ?
     config.test.env :
     config.build.env
     // console.log('now env is --->', env)
 const entries = {};
-const devRules = utils.styleLoaders({
-    sourceMap: config.dev.cssSourceMap,
-    extract: config.dev.extract
-});
+const rules = [
+    ...utils.styleLoaders({
+        sourceMap: config.dev.cssSourceMap,
+        extract: config.dev.extract
+    }),
+    {
+        test: /\.md$/,
+        loader: 'vue-markdown-loader',
+        options: {
+            preprocess: function(markdownIt, source) {
+                return source
+            },
+            use: [
+                [
+                    require('markdown-it'),
+                    {
+                        highlight: function(str, lang) {
+                            if(lang && hljs.getLanguage(lang)) {
+                                try {
+                                    return hljs.highlight(lang, str).value
+                                } catch (__) {}
+                            }
+                            return '' // use external default escaping
+                        }
+                    }
+                ]
+            ]
+        }
+    }
+]
 Object.keys(config.entry).forEach(each => {
     const opt = config.entry[each]
     entries[each] = opt.path;
@@ -31,7 +58,7 @@ var webpackConfig = merge(baseWebpackConfig, {
     entry: entries,
     // 注入styleLoaders
     module: {
-        rules: utils.styleLoaders({ sourceMap: config.build.productionSourceMap, extract: config.build.extract })
+        rules: rules
     },
     output: {
         path: isProduction ? config.build.assetsRoot : config.test.assetsRoot,
