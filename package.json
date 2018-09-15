@@ -1,20 +1,35 @@
 {
-  "name": "fixed-table",
+  "name": "@zzwing/vue-fixed-table",
   "version": "1.0.0",
   "description": "a vue-table component",
   "main": "dist/index.js",
   "module": "es/index.js",
-  "author": "zWingz",
+  "author": "zhengzwing@gmail.com",
   "license": "MIT",
+  "keywords": [
+    "vue",
+    "table",
+    "fixed-table",
+    "component"
+  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/zWingz/vue-fixed-table"
   },
+  "bugs": {
+    "url": "https://github.com/zWingz/vue-fixed-table/issues"
+  },
+  "files": [
+    "dist",
+    "es",
+    "src"
+  ],
   "scripts": {
     "clean-build": "rm -rf demo/",
     "demo": "cross-env NODE_ENV=production webpack --progress --hide-modules --colors --config=build/demo.conf.js",
     "dev": "cross-env NODE_ENV=development webpack-dev-server --inline --config=./build/dev.conf.js --hot --host localhost --port 8082",
-    "build:rollup": "cross-env NODE_ENV=production rollup -c"
+    "build:rollup": "cross-env NODE_ENV=production rollup -c",
+    "pub": "npm run build:rollup && npm publish --registry http://registry.npmjs.org --access=public"
   },
   "peerDependencies": {
     "vue": "^2.5.17",
@@ -22,6 +37,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.0.1",
+    "@babel/plugin-transform-runtime": "^7.0.0",
     "@babel/preset-env": "^7.0.0",
     "autoprefixer": "^9.1.5",
     "axios": "^0.18.0",
@@ -64,17 +80,11 @@
     "url-loader": "^1.1.1",
     "vue-eslint-parser": "^3.2.2",
     "vue-loader": "^15.4.2",
-    "vue-markdown-loader": "^2.4.1",
+    "vue-md-loader": "^1.0.0",
     "webpack": "^4.19.0",
     "webpack-cli": "^3.1.0",
     "webpack-dev-server": "^3.1.8",
     "webpack-hot-middleware": "^2.24.0",
     "webpack-merge": "^4.1.4"
-  },
-  "dependencies": {
-    "@babel/plugin-transform-runtime": "^7.0.0",
-    "vue": "^2.5.17",
-    "vue-md-loader": "^1.0.0",
-    "vue-template-compiler": "^2.5.17"
   }
 }
