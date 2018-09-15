@@ -13,7 +13,7 @@ export function getScrollLeft() {
 
 export function calcWidth(element, dir) {
     let dom
-    if(typeof element === 'string') {
+    if (typeof element === 'string') {
         dom = document.querySelectorAll(element)
     } else {
         dom = element
@@ -21,8 +21,8 @@ export function calcWidth(element, dir) {
     dom = Array.prototype.slice.call(dom, 0)
     let maxWidth = 0
     dom.forEach(each => {
-        const offsetWidth = each.offsetWidth
-        if(offsetWidth > maxWidth) {
+        const {offsetWidth} = each
+        if (offsetWidth > maxWidth) {
             maxWidth = offsetWidth
         }
     })
@@ -45,8 +45,8 @@ export function addResizeEventListener(ele, resizeHandle) {
 }
 
 export const getStyle = function(element, styleName) {
-    if(!element || !styleName) return null
-    if(styleName === 'float') {
+    if (!element || !styleName) return null
+    if (styleName === 'float') {
         styleName = 'cssFloat'
     }
     try {
@@ -61,19 +61,25 @@ export function timerFnc(fnc, t, before) {
     let timer = null
     const time = t || 200
     return function(args) {
-        if(timer) {
+        if (timer) {
             window.clearTimeout(timer)
         }
         before && before.call(this)
-        timer = window.setTimeout(async() => {
-            await fnc.call(this, args)
-            timer = null
+        timer = window.setTimeout(() => {
+            const ret = fnc.call(this, args)
+            if (ret && ret.then) {
+                ret.then(() => {
+                    timer = null
+                })
+            } else {
+                timer = null
+            }
         }, time)
     }
 }
 
 export function querySelectorAll(selector, context) {
     const ctx = context || document
-    const dom = context.querySelectorAll(selector)
+    const dom = ctx.querySelectorAll(selector)
     return Array.prototype.slice.call(dom, 0)
 }

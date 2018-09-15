@@ -74,12 +74,13 @@
             this.getData()
         },
         methods: {
-            async getData() {
-                const res = await axios.post(
+            getData() {
+                axios.post(
                     'https://www.easy-mock.com/mock/5ad94a09505da819e171ff74/tableMock/list'
-                )
-                this.data = res.data.data
-                this.load = true
+                ).then(res => {
+                    this.data = res.data.data
+                    this.load = true
+                })
             }
         },
         watch: {

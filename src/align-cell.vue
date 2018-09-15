@@ -1,15 +1,15 @@
 <style>
     .align-cell-l {
-        text-align: left;
+      text-align: left;
     }
     .align-cell-r {
-        text-align: right;
+      text-align: right;
     }
     .align-cell-c {
-        text-align: center;
+      text-align: center;
     }
     .align-cell span {
-        display: inline-block;
+      display: inline-block;
     }
 </style>
 
@@ -24,56 +24,55 @@
 </template>
 
 <script>
-    import {calcWidth} from './utils'
+    import { calcWidth } from './utils'
     export default {
-        name: 'AlignCell',
-        props: {
-            dir: {
-                type: String,
-                default: 'l'
-            },
-            tag: {
-                type: String,
-                default: 'td'
-            }
+      name: 'AlignCell',
+      props: {
+        dir: {
+          type: String,
+          default: 'l'
         },
-        data() {
-            return {
-                observer: undefined
-            }
-        },
-        async mounted() {
-            this.calc()
-            this.observer = new MutationObserver(this.calc)
-            this.observer.observe(this.$refs.span, {
-                childList: true,
-                subtree: true,
-                characterData: true
-            })
-        },
-        destroyed() {
-            this.observer.disconnect()
-        },
-        methods: {
-            calc() {
-                const table = this.$el.offsetParent
-                if(!table) {
-                    return
-                }
-                const index = this.$el.cellIndex + 1
-                const element = table.querySelectorAll(
-                    `.align-cell:nth-child(${index})>span>span`
-                )
-                // TODO
-                this.$nextTick(() => {
-                    calcWidth(element)
-                })
-            }
-        },
-        computed: {
-            hasDom() {
-                return this.$slots.default
-            }
+        tag: {
+          type: String,
+          default: 'td'
         }
+      },
+      data() {
+        return {
+          observer: undefined
+        }
+      },
+      mounted() {
+        this.calc()
+        this.observer = new MutationObserver(this.calc)
+        this.observer.observe(this.$refs.span, {
+          childList: true,
+          subtree: true,
+          characterData: true
+        })
+      },
+      destroyed() {
+        this.observer.disconnect()
+      },
+      methods: {
+        calc() {
+          const table = this.$el.offsetParent
+          if (!table) {
+            return
+          }
+          const index = this.$el.cellIndex + 1
+          const element = table.querySelectorAll(
+            `.align-cell:nth-child(${index})>span>span`
+          )
+          this.$nextTick(() => {
+            calcWidth(element)
+          })
+        }
+      },
+      computed: {
+        hasDom() {
+          return this.$slots.default
+        }
+      }
     }
 </script>

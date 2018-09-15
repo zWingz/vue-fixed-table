@@ -5,8 +5,8 @@ import postcss from 'rollup-plugin-postcss'
 import sass from 'node-sass'
 import autoprefixer from 'autoprefixer'
 import resolve from 'rollup-plugin-node-resolve'
-import pkg from './package.json'
 import VuePlugin from 'rollup-plugin-vue'
+import pkg from './package.json'
 const babelrc = require('./.babelrc.js')
 export default {
   input: 'src/index.js',
@@ -22,7 +22,7 @@ export default {
   ],
   plugins: [
     VuePlugin(),
-    external(),
+    // external(),
     postcss({
       preprocessor: (content, id) => new Promise(res => {
           const result = sass.renderSync({ file: id })
@@ -36,7 +36,7 @@ export default {
     babel({
       exclude: 'node_modules/**',
       ...babelrc
-      // externalHelpers: true
+      // runtimeHelpers: true
     }),
     resolve({
       extensions: ['.js', '.vue', '.json']
