@@ -2,7 +2,7 @@
 
 [![CircleCI](https://circleci.com/gh/zWingz/vue-fixed-table.svg?style=svg)](https://circleci.com/gh/zWingz/vue-fixed-table)
 
-[Demo](https://zwingz.github.io/vue-fixed-table/release/demo.html)
+[Demo](https://zwing.site/vue-fixed-table/docs/)
 
 功能：
 + 固定表格头、左侧栏
@@ -94,4 +94,3 @@
 让容器在页面高度不足的时候, 也可以拖动横向滚动条.
 
 **一定要让容器产生横向滚动**
-
