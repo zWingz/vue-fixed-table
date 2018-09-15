@@ -14,10 +14,10 @@ module.exports = {
             NODE_ENV: '"production"'
         },
         // index: path.resolve(__dirname, '../dist/'),
-        index: path.resolve(__dirname, '../release/'),
+        index: path.resolve(__dirname, '../docs/'),
         // 编译输出的静态资源根路径
         // assetsRoot: path.resolve(__dirname, '../dist'),
-        assetsRoot: path.resolve(__dirname, '../release'),
+        assetsRoot: path.resolve(__dirname, '../docs'),
         // 编译输出的二级目录
         assetsSubDirectory: 'assets',
         // 编译发布上线路径的根目录，可配置为资源服务器域名或 CDN 域名
