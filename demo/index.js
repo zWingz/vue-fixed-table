@@ -1,6 +1,6 @@
 import Vue from 'vue'
-import app from './app'
 import ElementUI from 'element-ui'
+import app from './app'
 import 'element-ui/lib/theme-chalk/index.css'
 import './style.scss'
 import './markdown.scss'

@@ -24,8 +24,7 @@
 </template>
 
 <script>
-    import FixedTable from '../fixed-table'
-    import AlignCell from '../align-cell'
+    import {FixedTable, AlignCell} from '../src'
     export default {
         components: {
             FixedTable,

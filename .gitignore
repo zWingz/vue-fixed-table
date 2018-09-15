@@ -13,3 +13,6 @@ stats.json
 stat.json
 yarn-error.log
 .DS_Store
+dist/
+es/
+release/

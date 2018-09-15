@@ -1,11 +1,11 @@
 // see http://vuejs-templates.github.io/webpack for documentation.
-var path = require('path');
+const path = require('path');
 
 module.exports = {
     entry: {
-        demo: {
-            path: './src/demo/index',
-            title: 'demo'
+        index: {
+            path: './demo/index',
+            title: 'vue-fixed-table'
         }
     },
     build: {
