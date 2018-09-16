@@ -216,7 +216,6 @@
     },
     methods: {
       init() {
-        this.scrollerDom.classList.add('scroll-container')
         this.scroller.addEventListener('scroll', this.scrollHandle, false)
         this.scroller.addEventListener(
           'mousewheel',
@@ -251,7 +250,6 @@
         this.update()
       },
       destroyed() {
-        this.scrollerDom.classList.remove('scroll-container')
         this.scroller.removeEventListener('scroll', this.scrollHandle)
         this.scroller.removeEventListener('mousewheel', this.scrollerMouseWheel)
         if (this.selfScroll) {
@@ -343,7 +341,7 @@
         const scrollTarget = e.target.closest('.scroll-container')
         if (
           scrollTarget !== this.$refs.content &&
-          scrollTarget !== document.body
+          scrollTarget !== this.scrollerDom
         ) {
           return
         }

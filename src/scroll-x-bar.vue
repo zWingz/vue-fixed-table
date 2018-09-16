@@ -82,6 +82,7 @@
       // this.refreshScroll();
       // 计算滚动条位置
       this.windowScrollHandle()
+      this.target.addEventListener('scroll', this.targetScrollHandle, false)
       window.addEventListener('resize', this.windowScrollHandle, false)
       this.scroller.addEventListener('scroll', this.windowScrollHandle, false)
       // 添加resize监听器
@@ -130,6 +131,7 @@
        * 目标滚动时候同步到虚拟滚动条位置
        */
       targetScrollHandle() {
+        console.log('targetScroll');
         this.scrollLeft = this.target.scrollLeft
       },
       /**
