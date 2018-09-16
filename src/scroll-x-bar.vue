@@ -5,8 +5,11 @@
 </template>
 
 <script>
-  import { addResizeEventListener, timerFnc } from './utils'
+  import { addResizeEventListener, timerFnc, getStyle } from './utils'
   export default {
+    props: {
+      scrollTarget: {}
+    },
     data() {
       return {
         scrollWidth: 0, // 滚动条宽度
@@ -44,6 +47,24 @@
           transform: `translate3d(0px, ${-this.bottom}px, 0px)`,
           opacity: this.opacity ? 0 : 1
         }
+      },
+      scroller() {
+        if (!this.scrollTarget) {
+          return window
+        }
+        let result
+        if (typeof this.scrollTarget === 'string') {
+          result = document.querySelector(this.scrollTarget)
+        } else {
+          result = this.scrollTarget
+        }
+        if (result) {
+          const pos = getStyle(result, 'position')
+          if (pos !== 'absolute' && pos !== 'fixed') {
+            result.style.position = 'relative'
+          }
+        }
+        return result
       }
     },
     mounted() {
@@ -61,10 +82,8 @@
       // this.refreshScroll();
       // 计算滚动条位置
       this.windowScrollHandle()
-      ;['scroll', 'resize'].forEach(each => {
-        window.addEventListener(each, this.windowScrollHandle, false)
-      })
-      this.target.addEventListener('scroll', this.targetScrollHandle, false)
+      window.addEventListener('resize', this.windowScrollHandle, false)
+      this.scroller.addEventListener('scroll', this.windowScrollHandle, false)
       // 添加resize监听器
       this.iframe = addResizeEventListener(this.target, this.refreshScroll)
     },
@@ -77,9 +96,8 @@
     },
     destroyed() {
       this.target.removeEventListener('scroll', this.targetScrollHandle)
-      ;['scroll', 'resize'].forEach(each => {
-        window.removeEventListener(each, this.windowScrollHandle)
-      })
+      window.removeEventListener('resize', this.windowScrollHandle)
+      this.scroller.removeEventListener('scroll', this.windowScrollHandle)
       this.iframe.removeEventListener('resize', this.refreshScroll)
       this.iframe.remove()
       this.virtualObserver.disconnect()

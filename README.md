@@ -94,3 +94,10 @@
 让容器在页面高度不足的时候, 也可以拖动横向滚动条.
 
 **一定要让容器产生横向滚动**
+
+## Bugfix
+
+### 监听滚轮事件的 bug
+    监听滚轮事件主要目的是获取滚动距离, 然后主动设`scrllTop`和`scrollLeft`, 防止产生抖动
+    由于监听了鼠标滚动事件, 如果`scroller`是`window`的话, 一旦其他元素产生`scroll`, 则会被`preventDefault`掉, 此处待解决.
+    目前解决方法是给`scroll`添加一个`.scroll-container`类, 并且其他滚动元素也添加该类, 判断条件为`e.target.closets(.scroll-container) !== scroller`, 这个方法不太好, 需要寻找其他方法
