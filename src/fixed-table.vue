@@ -251,7 +251,7 @@
         this.update()
       },
       destroyed() {
-        this.scrollerDom.classList.add('scroll-container')
+        this.scrollerDom.classList.remove('scroll-container')
         this.scroller.removeEventListener('scroll', this.scrollHandle)
         this.scroller.removeEventListener('mousewheel', this.scrollerMouseWheel)
         if (this.selfScroll) {
