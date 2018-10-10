@@ -29,6 +29,7 @@
       </div>
     </div>
     <scrollxbar v-if='selfScroll' :scrollTarget='scrollTarget'></scrollxbar>
+    <div style='z-index: 1; position: fixed;'></div>
   </div>
 </template>
 
@@ -217,17 +218,7 @@
     methods: {
       init() {
         this.scroller.addEventListener('scroll', this.scrollHandle, false)
-        this.scroller.addEventListener(
-          'mousewheel',
-          this.scrollerMouseWheel,
-          false
-        )
         if (this.selfScroll) {
-          this.xScroller.addEventListener(
-            'mousewheel',
-            this.xScrollerMouseWheel,
-            false
-          )
           this.xScroller.addEventListener('scroll', this.scrollHandle, false)
         }
         if (this.selfScroll || this.scrollTarget) {
@@ -251,12 +242,7 @@
       },
       destroyed() {
         this.scroller.removeEventListener('scroll', this.scrollHandle)
-        this.scroller.removeEventListener('mousewheel', this.scrollerMouseWheel)
         if (this.selfScroll) {
-          this.xScroller.removeEventListener(
-            'mousewheel',
-            this.xScrollerMouseWheel
-          )
           this.xScroller.removeEventListener('scroll', this.scrollHandle)
         }
         if (this.isFixLeft || this.isFixRight) {
@@ -336,28 +322,6 @@
         } else {
           window.scrollTo(left + this.tleftWidth, top)
         }
-      },
-      scrollerMouseWheel(e) {
-        const scrollTarget = e.target.closest('.scroll-container')
-        if (
-          scrollTarget !== this.$refs.content &&
-          scrollTarget !== this.scrollerDom
-        ) {
-          return
-        }
-        e.preventDefault()
-        let target
-        if (this.scrollTarget) {
-          target = this.scroller
-        } else {
-          target = document.scrollingElement
-        }
-        target.scrollTop += e.deltaY
-        target.scrollLeft -= e.deltaX
-      },
-      xScrollerMouseWheel(e) {
-        e.preventDefault()
-        this.xScroller.scrollLeft += e.deltaX
       },
       setScrollIng: timerFnc(function() {
         this.scrolling = false
@@ -474,7 +438,7 @@
 <style lang='scss'>
   .fixed-table-container {
     position: relative;
-    z-index: 1;
+    z-index: 2;
     transform: translate3d(0, 0, 0);
     box-shadow: -1px 0px 0px 0px #dadada, 1px 0px 0px 0px #dadada,
       0px 1px 0 0 #dadada;
