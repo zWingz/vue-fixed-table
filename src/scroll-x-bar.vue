@@ -70,7 +70,7 @@
     mounted() {
       // virtual
       this.bar = this.$refs.bar
-      this.target = this.$el.previousElementSibling
+      this.target = this.$el.parentElement
       this.virtualObserver = new MutationObserver(this.refreshScroll)
       this.virtualObserver.observe(this.target, {
         childList: true,
@@ -131,7 +131,6 @@
        * 目标滚动时候同步到虚拟滚动条位置
        */
       targetScrollHandle() {
-        console.log('targetScroll');
         this.scrollLeft = this.target.scrollLeft
       },
       /**
