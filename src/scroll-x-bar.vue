@@ -1,5 +1,5 @@
 <template>
-  <div ref='scroller' class='virtual-scroll overhidden' :style='style' v-show='bottom > 5 && virtualPercent < 1' @mousedown.self='barClickHandle'>
+  <div ref='scroller' class='virtual-scroll overhidden' :style='style' @mousedown.self='barClickHandle'>
     <div ref='bar' class="virtual-scroll-bar" :style='barLeft' @mousedown='barMouseDownHandle'></div>
   </div>
 </template>
@@ -18,7 +18,7 @@
         virtualMouseDownX: 0, // 鼠标按键x坐标
         virtualObserver: {},
         target: {}, // 滚动元素
-        opacity: false, // 是否需要设置透明
+        // opacity: false, // 是否需要设置透明
         bottom: 0, // 底部
         iframe: {} // iframe,用来监听resize
       }
@@ -45,7 +45,7 @@
       style() {
         return {
           transform: `translate3d(0px, ${-this.bottom}px, 0px)`,
-          opacity: this.opacity ? 0 : 1
+          opacity: this.bottom > 5 && this.virtualPercent < 1 ? 1 : 0
         }
       },
       scroller() {
@@ -70,7 +70,7 @@
     mounted() {
       // virtual
       this.bar = this.$refs.bar
-      this.target = this.$el.previousElementSibling
+      this.target = this.$el.parentElement
       this.virtualObserver = new MutationObserver(this.refreshScroll)
       this.virtualObserver.observe(this.target, {
         childList: true,
@@ -104,34 +104,31 @@
       this.virtualObserver.disconnect()
     },
     methods: {
-      setOpacityShow: timerFnc(function() {
-        this.opacity = false
-      }, 100),
       /**
        * @function
        * 监听全局滚动, 用来将虚拟滚动条固定在底部
        */
-      windowScrollHandle: timerFnc(
-        function() {
-          const { bottom } = this.target.getBoundingClientRect()
-          let result = bottom - document.documentElement.clientHeight
-          if (result < 0) {
-            result = 0
-          }
-          this.bottom = result
-          this.setOpacityShow()
-        },
-        100,
-        function() {
-          this.opacity = true
+      windowScrollHandle: function() {
+        const { bottom } = this.target.getBoundingClientRect()
+        let offsetTop = 0
+        if (this.scroller === window) {
+          offsetTop = document.documentElement.clientHeight
+        } else {
+          offsetTop =
+            this.scroller.clientHeight + this.scroller.getBoundingClientRect().top
         }
-      ),
+        let result = bottom - offsetTop
+        if (result < 0) {
+          result = 0
+        }
+        this.bottom = result
+        // this.setOpacityShow()
+      },
       /**
        * @function
        * 目标滚动时候同步到虚拟滚动条位置
        */
       targetScrollHandle() {
-        console.log('targetScroll');
         this.scrollLeft = this.target.scrollLeft
       },
       /**
@@ -153,10 +150,7 @@
           this.windowScrollHandle()
           this.targetScrollHandle()
         },
-        100,
-        function() {
-          this.opacity = true
-        }
+        100
       ),
       /**
        * @event
