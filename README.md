@@ -57,11 +57,10 @@
 
 |    props     | 类型           | 默认  | 描述                                                         |
 | :----------: | -------------- | ----- | ------------------------------------------------------------ |
-|  offsetLeft  | String, Number | 0     | 左侧偏移                                                     |
 |  offsetTop   | String, Number | 0     | 顶部偏移                                                     |
-| scrollTarget | Object, String | 无    | 滚动容器, 可传dom元素或者选择器, 没有默认为window, 既全局滚动.(DEMO1和2) |
+|  selfScroll  | Boolean        | false | 是否自滚动. 垂直滚动会依赖全局, 横向滚动会依赖自身. 所以需要额外样式是的容器能产生横向的滚动条.(DEMO 1) |
+| scrollTarget | Object, String | window    | 局部滚动容器, 可传dom元素或者选择器, 既全局滚动.(DEMO2) |
 |   useTrans   | Boolean        | false | 是否使用动画做回退方案, 在safari和firefox下会有闪动. 所以safari和firefox默认开启. |
-|  selfScroll  | Boolean        | false | 是否自滚动. 垂直滚动会依赖全局, 横向滚动会依赖自身. 所以需要额外样式是的容器能产生横向的滚动条.(DEMO 3) |
 
 
 ### slot
