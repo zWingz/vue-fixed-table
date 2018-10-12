@@ -1,6 +1,6 @@
 <template>
   <div class='rel'>
-    <div class='fixed-table-container' ref='content' @mouseover='mouseOver' @mouseout='mouseLeave'>
+    <div class='fixed-table-container rel' ref='content' @mouseover='mouseOver' @mouseout='mouseLeave'>
       <table v-if='isFixLeft' ref='leftClone' class='fixed-table table-clone left'>
         <thead class='fixed-table corner' :style='theadStyle' :class='[{fixed: fixedTop}]'>
           <slot name='leftThead'></slot>
